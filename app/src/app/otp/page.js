@@ -1,7 +1,9 @@
 'use client';
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function OTPVerification() {
+  const router = useRouter();
   const [otp, setOtp] = useState(new Array(6).fill(''));
   const inputRefs = useRef([]);
 
@@ -19,6 +21,8 @@ export default function OTPVerification() {
     e.preventDefault();
     // Add OTP verification logic here
     console.log('OTP:', otp.join(''));
+    // Redirect to dashboard after successful verification
+    router.push('/dashboard');
   };
 
   return (
