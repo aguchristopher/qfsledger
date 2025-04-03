@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../../../components/Navbar';
 import SendScreen from '../../../components/screens/SendScreen';
 import ReceiveScreen from '../../../components/screens/ReceiveScreen';
@@ -10,6 +10,28 @@ import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, He
 export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState('overview');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cryptoData, setCryptoData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCryptoData = async () => {
+      try {
+        const response = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ripple,stellar,ethereum,shiba-inu&vs_currencies=usd&include_24h_change=true&include_last_updated_at=true&include_high_24h=true'
+        );
+        const data = await response.json();
+        setCryptoData(data);
+      } catch (error) {
+        console.error('Error fetching crypto data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCryptoData();
+    const interval = setInterval(fetchCryptoData, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
 
   const handleBack = () => {
     setSelectedTab('overview');
@@ -134,35 +156,82 @@ export default function Dashboard() {
 
           {selectedTab === 'overview' && (
             <div className="mt-8 bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-semibold text-white mb-6">Recent Activity</h3>
-              <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-white mb-6">Market Overview</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {[
-                  { type: 'Received', amount: '+0.25 BTC', time: '2 hours ago', status: 'Completed' },
-                  { type: 'Sent', amount: '-0.15 ETH', time: '5 hours ago', status: 'Pending' },
-                  { type: 'Swapped', amount: 'BTC → ETH', time: '1 day ago', status: 'Completed' },
-                ].map((activity, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-lg ${
-                        activity.type === 'Received' ? 'bg-green-500/20 text-green-500' :
-                        activity.type === 'Sent' ? 'bg-red-500/20 text-red-500' :
-                        'bg-blue-500/20 text-blue-500'
-                      }`}>
-                        {activity.type === 'Received' ? <ArrowLeftCircle size={20} /> :
-                         activity.type === 'Sent' ? <ArrowRightCircle size={20} /> :
-                         <RefreshCw size={20} />}
-                      </div>
+                  {
+                    name: 'Bitcoin',
+                    symbol: 'BTC',
+                    id: 'bitcoin',
+                    image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png'
+                  },
+                  {
+                    name: 'Ripple',
+                    symbol: 'XRP',
+                    id: 'ripple',
+                    image: 'https://cryptologos.cc/logos/xrp-xrp-logo.png'
+                  },
+                  {
+                    name: 'Stellar',
+                    symbol: 'XLM',
+                    id: 'stellar',
+                    image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png'
+                  },
+                  {
+                    name: 'Ethereum',
+                    symbol: 'ETH',
+                    id: 'ethereum',
+                    image: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
+                  },
+                  {
+                    name: 'Shiba Inu',
+                    symbol: 'SHIB',
+                    id: 'shiba-inu',
+                    image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png'
+                  }
+                ].map((crypto) => (
+                  <div 
+                    key={crypto.id} 
+                    className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <img 
+                        src={crypto.image} 
+                        alt={crypto.name}
+                        className="w-8 h-8 object-contain"
+                      />
                       <div>
-                        <p className="text-white font-medium">{activity.type}</p>
-                        <p className="text-gray-400 text-sm">{activity.time}</p>
+                        <h4 className="text-white font-medium">{crypto.name}</h4>
+                        <p className="text-gray-400 text-sm">{crypto.symbol}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-white font-medium">{activity.amount}</p>
-                      <p className={`text-sm ${
-                        activity.status === 'Completed' ? 'text-green-400' : 'text-yellow-400'
-                      }`}>{activity.status}</p>
-                    </div>
+                    {cryptoData && cryptoData[crypto.id] ? (
+                      <div className="space-y-2">
+                        <p className="text-2xl font-bold text-white">
+                          ${cryptoData[crypto.id].usd.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 8
+                          })}
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className={`text-sm ${
+                            cryptoData[crypto.id].usd_24h_change >= 0 
+                              ? 'text-green-400' 
+                              : 'text-red-400'
+                          }`}>
+                            24h: {cryptoData[crypto.id].high_24h}%
+                          </span>
+                          <span className="text-sm text-gray-400">
+                            {new Date(cryptoData[crypto.id].last_updated_at * 1000).toLocaleTimeString()}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="animate-pulse">
+                        <div className="h-8 bg-white/5 rounded mb-2"></div>
+                        <div className="h-4 bg-white/5 rounded w-2/3"></div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

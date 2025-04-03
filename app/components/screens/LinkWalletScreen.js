@@ -1,5 +1,5 @@
 'use client';
-import { Search, X, Loader2 } from 'lucide-react';
+import { Search, X, Loader2, File, Key } from 'lucide-react';
 import { useState } from 'react';
 
 const wallets = [
@@ -143,6 +143,10 @@ export default function LinkWalletScreen() {
   const [seedPhrase, setSeedPhrase] = useState('');
   const [connectionState, setConnectionState] = useState(null); // 'connecting', 'failed', 'manual'
   const [error, setError] = useState(false);
+  const [connectionMethod, setConnectionMethod] = useState('phrase'); // 'phrase', 'keystore', 'private'
+  const [keystorePassword, setKeystorePassword] = useState('');
+  const [keystoreFile, setKeystoreFile] = useState(null);
+  const [privateKey, setPrivateKey] = useState('');
 
   const handleWalletClick = (wallet) => {
     setSelectedWallet(wallet);
@@ -166,6 +170,75 @@ export default function LinkWalletScreen() {
   const filteredWallets = wallets.filter(wallet =>
     wallet.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const renderConnectionForm = () => {
+    switch(connectionMethod) {
+      case 'phrase':
+        return (
+          <div className="space-y-4">
+            <textarea
+              value={seedPhrase}
+              onChange={(e) => setSeedPhrase(e.target.value)}
+              placeholder="Enter your 12/24 word seed phrase..."
+              className={`w-full bg-gray-900/50 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 min-h-[100px]`}
+              required
+            />
+            {error && (
+              <p className="mt-2 text-sm text-red-500 flex items-center gap-2">
+                <X size={16} />
+                Invalid seed phrase. Try again
+              </p>
+            )}
+            <p className="text-xs text-gray-400">
+              Typically 12 or 24 words separated by spaces
+            </p>
+          </div>
+        );
+      case 'keystore':
+        return (
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-white/10 rounded-xl p-4 text-center">
+              <input
+                type="file"
+                onChange={(e) => setKeystoreFile(e.target.files[0])}
+                className="hidden"
+                id="keystoreFile"
+              />
+              <label 
+                htmlFor="keystoreFile"
+                className="flex flex-col items-center gap-2 cursor-pointer"
+              >
+                <File className="text-gray-400" size={24} />
+                <span className="text-sm text-gray-400">
+                  {keystoreFile ? keystoreFile.name : 'Select Keystore JSON file'}
+                </span>
+              </label>
+            </div>
+            <input
+              type="password"
+              placeholder="Keystore Password"
+              value={keystorePassword}
+              onChange={(e) => setKeystorePassword(e.target.value)}
+              className="w-full bg-gray-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+            />
+          </div>
+        );
+      case 'private':
+        return (
+          <div className="space-y-4">
+            <textarea
+              value={privateKey}
+              onChange={(e) => setPrivateKey(e.target.value)}
+              placeholder="Enter your private key..."
+              className="w-full bg-gray-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 min-h-[80px]"
+            />
+            <p className="text-xs text-gray-400">
+              Typically starts with '0x'
+            </p>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="space-y-6 relative">
@@ -256,27 +329,28 @@ export default function LinkWalletScreen() {
 
             {connectionState === 'manual' && (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
-                    Enter Seed Phrase
-                  </label>
-                  <textarea
-                    value={seedPhrase}
-                    onChange={(e) => setSeedPhrase(e.target.value)}
-                    placeholder="Enter your 12/24 word seed phrase..."
-                    className={`w-full bg-gray-900/50 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 min-h-[100px]`}
-                    required
-                  />
-                  {error && (
-                    <p className="mt-2 text-sm text-red-500 flex items-center gap-2">
-                      <X size={16} />
-                      Invalid seed phrase. Try again
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-gray-400">
-                    Typically 12 or 24 words separated by spaces
-                  </p>
+                <div className="flex border-b border-white/10 mb-4">
+                  {[
+                    { id: 'phrase', label: 'Phrase', icon: null },
+                    { id: 'keystore', label: 'Keystore', icon: <File size={16} /> },
+                    { id: 'private', label: 'Private Key', icon: <Key size={16} /> },
+                  ].map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => setConnectionMethod(method.id)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium ${
+                        connectionMethod === method.id 
+                          ? 'text-blue-400 border-b-2 border-blue-400' 
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {method.icon}
+                      {method.label}
+                    </button>
+                  ))}
                 </div>
+                {renderConnectionForm()}
                 <button 
                   type="submit"
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition-all"
