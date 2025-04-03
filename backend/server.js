@@ -12,10 +12,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [
-    'https://qfsledger-tktm.vercel.app',
-    'https://qfsledger-q6y3.vercel.app'
-  ],
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
