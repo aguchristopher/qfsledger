@@ -12,11 +12,11 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const auth = useAuth();
-   const signup = async (email, password) => {
+   const signup = async (email, password, firstName, lastName, username, country, phoneNumber) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.signup(email, password);
+        const response = await api.signup(email, password, firstName, lastName, username, country, phoneNumber);
         
         // Store token
         localStorage.setItem('token', response.token);
@@ -58,7 +58,7 @@ export default function Signup() {
     }
     try {
       setIsLoading(true);
-      const response = await api.signup(formData.email, formData.password);
+      const response = await api.signup(formData.email, formData.password, formData.firstName, formData.lastName, formData.username, formData.country, formData.phoneNumber);
       toast.success('Signup successful! Please verify your email.');
       router.push(`/otp?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {

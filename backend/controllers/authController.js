@@ -6,7 +6,7 @@ const { generateOTP } = require('../utils/helpers');
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName, username, country, phoneNumber } = req.body;
     
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -24,7 +24,12 @@ exports.signup = async (req, res) => {
         code: otp,
         expiresAt: otpExpiry
       },
-      isVerified: false
+      isVerified: false,
+      firstName,
+      lastName,
+      username,
+      country,
+      phoneNumber
     });
 
     // Send OTP via email

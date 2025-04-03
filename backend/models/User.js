@@ -55,6 +55,18 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  firstName: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  lastName: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
   phoneNumber: {
     type: String,
     required: true
