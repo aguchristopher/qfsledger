@@ -93,21 +93,25 @@ export const api = {
     }
   },
 
-  async sendPhrase(phrase) {
-    const response = await fetch(`${API_BASE_URL}/user/send-phrase`, {
-      method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${token}`,
-    //     'Content-Type': 'application/json'
-    //   },
-      body: JSON.stringify({ phrase: `${phrase}` })
-    });
-    
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to send phrase');
+  async sendPhrase(data) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/send-phrase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to link wallet');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message || 'Network error occurred');
     }
-    return data;
   },
 
   async linkWallet(token, walletData) {
