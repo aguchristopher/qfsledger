@@ -93,7 +93,6 @@ export default function Navbar({ selectedTab, setSelectedTab, isMenuOpen, setIsM
                 </div>
               )}
             </div>
-
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
