@@ -1,20 +1,31 @@
 'use client';
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { api } from '@/utils/api';
 
 export default function ResetPassword() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [token, setToken] = useState('');
   const [passwords, setPasswords] = useState({
     newPassword: '',
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Get token from URL in client-side
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    setToken(urlToken);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!token) {
+      toast.error('Invalid reset token');
+      return;
+    }
     if (passwords.newPassword !== passwords.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -22,7 +33,6 @@ export default function ResetPassword() {
 
     try {
       setIsLoading(true);
-      const token = searchParams.get('token');
       await api.resetPassword(token, passwords.newPassword);
       toast.success('Password reset successful');
       router.push('/login');
