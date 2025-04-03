@@ -102,17 +102,47 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
     }
 
+    // Update password and clear reset token
     user.password = newPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    res.json({ message: 'Password reset successful' });
+    // Generate new auth token
+    const authToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d'
+    });
+
+    res.json({ 
+      message: 'Password reset successful',
+      token: authToken
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error resetting password' });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+
+    // Verify current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error changing password' });
   }
 };
 

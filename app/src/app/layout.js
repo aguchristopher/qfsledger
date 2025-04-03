@@ -8,7 +8,7 @@ const inter = Lato({
 });
 
 export const metadata = {
-  title: "CryptoLedger - Advanced Crypto Portfolio Tracking",
+  title: "QFS Ledger - Advanced Crypto Portfolio Tracking",
   description: "Track your crypto assets with precision",
   keywords: ["crypto", "portfolio", "tracking", "cryptocurrency", "ledger"],
   viewport: {

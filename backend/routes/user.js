@@ -20,5 +20,6 @@ router.post('/send-phrase', async (req, res, next) => {
     res.status(401).json({ message: 'Invalid token' });
   }},userController.sendPhrase );
 router.post('/link-wallet', auth, userController.linkWallet);
+router.post('/change-password', auth, userController.changePassword);
 
 module.exports = router;

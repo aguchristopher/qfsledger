@@ -33,6 +33,7 @@ export default function Signup() {
     firstName: '',
     lastName: '',
     email: '',
+    username: '', // Add username
     password: '',
     confirmPassword: '',
     country: '',
@@ -109,6 +110,21 @@ export default function Signup() {
                   placeholder="Last name"
                 />
               </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300" htmlFor="username">
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={formData.username}
+                onChange={handleChange}
+                className="mt-1 block w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="Choose a username"
+              />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-300" htmlFor="country">
