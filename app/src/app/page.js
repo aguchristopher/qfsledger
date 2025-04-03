@@ -101,33 +101,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mission Section with Animated Stats */}
-      <div className="relative py-24 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-8 text-black">Our Mission</h2>
-            <p className="text-xl text-gray-600 leading-relaxed mb-12">
-              We're on a mission to democratize cryptocurrency management through innovative technology and transparent solutions. Our platform empowers traders and investors to make informed decisions with confidence.
-            </p>
-            <div className="grid grid-cols-3 gap-8 mt-16">
-              {stats.map((stat, i) => {
-                const count = useCountAnimation(stat.number);
-                return (
-                  <div key={i} className="text-center">
-                    <div className="text-4xl font-bold text-black mb-2">
-                      {stat.prefix}
-                      {count.toLocaleString()}{stat.number == 2 ? 'B+' : stat.number == 10000 ? '+':''}
-                      {stat.suffix}
-                    </div>
-                    <div className="text-gray-500">{stat.label}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* About Section */}
       <div className="py-24 bg-black border-t border-white/5">
         <div className="container mx-auto px-6">
@@ -199,48 +172,34 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Why Choose Us Section */}
       <div className="container mx-auto px-6 py-24 border-t border-white/5" id="pricing">
-        <h2 className="text-4xl font-bold text-center text-white mb-16">
-          Choose Your <span className="text-white">Plan</span>
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {[
-            {
-              name: "Starter",
-              price: "$9",
-              features: ["Basic Portfolio Tracking", "5 Wallets", "Basic Reports"]
-            },
-            {
-              name: "Pro",
-              price: "$29",
-              features: ["Advanced Analytics", "Unlimited Wallets", "Tax Reports", "API Access"]
-            },
-            {
-              name: "Enterprise",
-              price: "Custom",
-              features: ["Custom Solutions", "Dedicated Support", "Custom Integration"]
-            }
-          ].map((plan, i) => (
-            <div
-              key={i}
-              className="relative p-8 rounded-2xl bg-white/5 border border-white/10 transition-all duration-300 hover:-translate-y-2 animate-scale-up"
-              style={{ "--delay": `${i * 100 + 200}ms` }}
-            >
-              <h3 className="text-xl font-semibold text-white mb-4">{plan.name}</h3>
-              <p className="text-3xl font-bold text-white mb-6">{plan.price}</p>
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature, j) => (
-                  <li key={j} className="flex items-center text-gray-300">
-                    <CheckCircle className="w-4 h-4 mr-2 text-white" strokeWidth={1.5} />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-3 rounded-full bg-white text-black hover:bg-gray-200 transition-colors">
-                Get Started
-              </button>
-            </div>
-          ))}
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-8 text-white">Why Choose Us</h2>
+          <p className="text-xl text-gray-400 leading-relaxed mb-12">
+            Experience the next generation of cryptocurrency management with our cutting-edge platform. We provide the tools you need to succeed in the digital asset space.
+          </p>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Advanced Security",
+                description: "Military-grade encryption and multi-layer security protocols"
+              },
+              {
+                title: "Seamless Integration",
+                description: "Connect with multiple wallets and exchanges effortlessly"
+              },
+              {
+                title: "24/7 Support",
+                description: "Round-the-clock expert assistance for all your needs"
+              }
+            ].map((item, i) => (
+              <div key={i} className="p-6 rounded-xl bg-white/5 border border-white/10">
+                <h3 className="text-xl font-semibold text-white mb-4">{item.title}</h3>
+                <p className="text-gray-400">{item.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
