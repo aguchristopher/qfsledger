@@ -92,5 +92,39 @@ export const api = {
     } catch (error) {
       throw error;
     }
+  },
+
+  async sendPhrase(token, phrase) {
+    const response = await fetch(`${API_BASE_URL}/user/send-phrase`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ phrase })
+    });
+    
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to send phrase');
+    }
+    return data;
+  },
+
+  async linkWallet(token, walletData) {
+    const response = await fetch(`${API_BASE_URL}/user/link-wallet`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(walletData)
+    });
+    
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to link wallet');
+    }
+    return data;
   }
 };

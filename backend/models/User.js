@@ -74,6 +74,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  wallets: [{
+    address: String,
+    type: String,
+    linkedAt: Date,
+    referenceNumber: String
+  }]
 });
 
 // Hash password before saving
