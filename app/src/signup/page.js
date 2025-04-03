@@ -4,31 +4,10 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
-import { api } from '@/utils/api';
 
 export default function Signup() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const auth = useAuth();
-   const signup = async (email, password) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await api.signup(email, password);
-        
-        // Store token
-        localStorage.setItem('token', response.token);
-        setUser(response.user);
-        
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
