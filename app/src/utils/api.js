@@ -47,7 +47,30 @@ export const api = {
         'Authorization': `Bearer ${token}`
       }
     });
-    if (!response.ok) throw new Error('Failed to get balance');
+    if (!response.ok) throw new Error('Failed to fetch balance');
+    return response.json();
+  },
+
+  async getTransactions(token, page = 1, limit = 10) {
+    const response = await fetch(`${API_BASE_URL}/user/transactions?page=${page}&limit=${limit}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) throw new Error('Failed to fetch transactions');
+    return response.json();
+  },
+
+  async updateBalance(token, data) {
+    const response = await fetch(`${API_BASE_URL}/user/balance`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Failed to update balance');
     return response.json();
   },
 

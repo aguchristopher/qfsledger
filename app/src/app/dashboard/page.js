@@ -6,14 +6,43 @@ import ReceiveScreen from '../../../components/screens/ReceiveScreen';
 import SwapScreen from '../../../components/screens/SwapScreen';
 import LinkWalletScreen from '../../../components/screens/LinkWalletScreen';
 import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, HeadphonesIcon, LogOut, Menu, Languages, ChevronDown, ChevronLeft } from 'lucide-react';
+import { api } from '@/utils/api';
+import toast, { Toaster } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
+  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState('overview');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cryptoData, setCryptoData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [balanceData, setBalanceData] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    const fetchUserData = async () => {
+      try {
+        const [balanceResponse, transactionsResponse] = await Promise.all([
+          api.getBalance(token),
+          api.getTransactions(token)
+        ]);
+        setBalanceData(balanceResponse);
+        setTransactions(transactionsResponse.transactions);
+      } catch (error) {
+        toast.error('Failed to fetch user data');
+        if (error.message === 'Invalid token') {
+          localStorage.removeItem('token');
+          router.push('/login');
+        }
+      }
+    };
+
     const fetchCryptoData = async () => {
       try {
         const response = await fetch(
@@ -28,10 +57,11 @@ export default function Dashboard() {
       }
     };
 
+    fetchUserData();
     fetchCryptoData();
     const interval = setInterval(fetchCryptoData, 60000); // Update every minute
     return () => clearInterval(interval);
-  }, []);
+  }, [router]);
 
   const handleBack = () => {
     setSelectedTab('overview');
@@ -40,7 +70,7 @@ export default function Dashboard() {
   const renderScreen = () => {
     switch(selectedTab) {
       case 'send':
-        return <SendScreen />;
+        return <SendScreen balance={balanceData} onSuccess={() => fetchUserData()} />;
       case 'receive':
         return <ReceiveScreen />;
       case 'swap':
@@ -53,9 +83,13 @@ export default function Dashboard() {
             <div className="bg-gray-800/50 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-semibold text-white">Total Balance</h3>
-                <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg">+2.5%</span>
+                <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg">
+                  {balanceData?.totalBalance ? `$${balanceData.totalBalance.toFixed(2)}` : 'Active'}
+                </span>
               </div>
-              <p className="text-4xl font-bold text-white mb-4">$25,420.65</p>
+              <p className="text-4xl font-bold text-white mb-4">
+                ${balanceData?.totalBalance?.toLocaleString() || '0.00'}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <button 
                   onClick={() => setSelectedTab('send')}
@@ -87,6 +121,29 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
+
+            {/* Recent Transactions */}
+            {transactions.length > 0 && (
+              <div className="mt-8 bg-white/5 rounded-2xl border border-white/10 p-6">
+                <h3 className="text-xl font-semibold text-white mb-4">Recent Transactions</h3>
+                <div className="space-y-4">
+                  {transactions.map((tx) => (
+                    <div key={tx._id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                      <div>
+                        <p className="text-white">{tx.type}</p>
+                        <p className="text-sm text-gray-400">{new Date(tx.timestamp).toLocaleDateString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-lg ${tx.type === 'deposit' ? 'text-green-400' : 'text-red-400'}`}>
+                          {tx.type === 'deposit' ? '+' : '-'}${tx.amount}
+                        </p>
+                        <p className="text-sm text-gray-400">{tx.currency}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
     }
@@ -94,6 +151,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <Toaster position="top-center" />
       <Navbar selectedTab={selectedTab} setSelectedTab={setSelectedTab} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       
       {/* Mobile Navigation */}
