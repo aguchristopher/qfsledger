@@ -129,5 +129,35 @@ export const api = {
       throw new Error(data.message || 'Failed to link wallet');
     }
     return data;
+  },
+
+  async requestPasswordReset(email) {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to request password reset');
+    }
+    return response.json();
+  },
+
+  async resetPassword(token, newPassword) {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token, newPassword })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to reset password');
+    }
+    return response.json();
   }
 };
