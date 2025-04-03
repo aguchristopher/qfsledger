@@ -4,12 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Add viewport export
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1
-};
-
 function OTPContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
