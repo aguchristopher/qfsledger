@@ -1,10 +1,16 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 
-export default function OTPVerification() {
+// Add viewport export
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1
+};
+
+function OTPContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
@@ -106,5 +112,17 @@ export default function OTPVerification() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function OTPVerification() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black font-sans flex items-center justify-center p-4">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <OTPContent />
+    </Suspense>
   );
 }
