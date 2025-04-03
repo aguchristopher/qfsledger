@@ -5,15 +5,15 @@ const transporter = nodemailer.createTransport({
   // Example for Gmail:
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+    user: 'aguchris740@gmail.com',
+    pass: 'thswpkcauzjpwvzk'
   }
 });
 
 const sendEmail = async (to, subject, text) => {
   try {
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: 'aguchris740@gmail.com',
       to,
       subject,
       text

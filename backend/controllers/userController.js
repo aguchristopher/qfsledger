@@ -1,11 +1,7 @@
 const User = require('../models/User');
 const crypto = require('crypto');
-const sendEmail = require('../utils/email'); // You'll need to implement this
-
-// Generate OTP
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
+const sendEmail = require('../utils/email');
+const { generateOTP } = require('../utils/helpers');
 
 exports.getUserInfo = async (req, res) => {
   try {
@@ -38,8 +34,12 @@ exports.resendOTP = async (req, res) => {
 
 exports.verifyOTP = async (req, res) => {
   try {
-    const { otp } = req.body;
-    const user = await User.findById(req.user.id);
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     if (!user.otp || !user.otp.code || user.otp.expiresAt < Date.now()) {
       return res.status(400).json({ message: 'OTP expired' });
@@ -53,7 +53,14 @@ exports.verifyOTP = async (req, res) => {
     user.otp = undefined;
     await user.save();
 
-    res.json({ message: 'OTP verified successfully' });
+    res.json({ 
+      message: 'Email verified successfully',
+      user: {
+        id: user._id,
+        email: user.email,
+        isVerified: true
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error verifying OTP' });
   }

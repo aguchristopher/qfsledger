@@ -50,7 +50,7 @@ export default function Login() {
       setIsLoading(true);
       await login(formData.email, formData.password);
       toast.success('Logged in successfully!');
-      router.push('/otp');
+      router.push('/dashboard');
     } catch (error) {
       toast.error(error.message || 'Failed to login');
     } finally {

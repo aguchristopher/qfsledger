@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 
 router.get('/info', auth, userController.getUserInfo);
 router.post('/resend-otp', auth, userController.resendOTP);
-router.post('/verify-otp', auth, userController.verifyOTP);
+router.post('/verify-otp', userController.verifyOTP); // Remove auth middleware for initial verification
 router.post('/forgot-password', userController.forgotPassword);
 router.post('/reset-password', userController.resetPassword);
 router.get('/balance', auth, userController.getBalance);

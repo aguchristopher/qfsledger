@@ -48,19 +48,13 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.terms) {
-      toast.error('Please accept the terms and conditions');
-      return;
-    }
-
     try {
       setIsLoading(true);
-      await signup(formData.email, formData.password);
-      toast.success('Account created successfully!');
-      router.push('/dashboard');
+      const response = await api.signup(formData.email, formData.password);
+      toast.success('Signup successful! Please verify your email.');
+      router.push(`/otp?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
-      toast.error(error.message || 'Failed to create account');
+      toast.error(error.message || 'Failed to sign up');
     } finally {
       setIsLoading(false);
     }

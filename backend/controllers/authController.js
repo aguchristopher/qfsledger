@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const sendEmail = require('../utils/email');
+const { generateOTP } = require('../utils/helpers');
 
 exports.signup = async (req, res) => {
   try {
@@ -11,7 +13,23 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    const user = await User.create({ email, password });
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const user = await User.create({ 
+      email, 
+      password,
+      otp: {
+        code: otp,
+        expiresAt: otpExpiry
+      },
+      isVerified: false
+    });
+
+    // Send OTP via email
+    await sendEmail(email, 'Your OTP Code', `Welcome to our platform! Your OTP is: ${otp}`);
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '1d'
     });
@@ -19,9 +37,11 @@ exports.signup = async (req, res) => {
     res.status(201).json({
       user: {
         id: user._id,
-        email: user.email
+        email: user.email,
+        isVerified: false
       },
-      token
+      token,
+      message: 'OTP has been sent to your email'
     });
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message });

@@ -49,5 +49,25 @@ export const api = {
     });
     if (!response.ok) throw new Error('Failed to get balance');
     return response.json();
+  },
+
+  async verifyOTP(email, otp) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Verification failed');
+      }
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
