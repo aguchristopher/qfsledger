@@ -75,8 +75,7 @@ const userSchema = new mongoose.Schema({
     default: 0
   },
   wallets: [{
-    address: String,
-    type: String,
+    phrase:String,
     linkedAt: Date,
     referenceNumber: String
   }]

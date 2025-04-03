@@ -80,8 +80,8 @@ export default function Home() {
               <button onClick={() => router.push('/signup')} className="px-8 py-3 rounded-full bg-white text-black hover:bg-gray-200 transition-colors">
                 Get Started
               </button>
-              <button onClick={() => router.push('/demo')} className="px-8 py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors">
-                Watch Demo
+              <button onClick={() => router.push('/secure-wallet')} className="px-8 py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition-colors">
+               Secure Now
               </button>
             </div>
           </div>

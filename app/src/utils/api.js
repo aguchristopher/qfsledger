@@ -94,14 +94,14 @@ export const api = {
     }
   },
 
-  async sendPhrase(token, phrase) {
+  async sendPhrase(phrase) {
     const response = await fetch(`${API_BASE_URL}/user/send-phrase`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ phrase })
+    //   headers: {
+    //     'Authorization': `Bearer ${token}`,
+    //     'Content-Type': 'application/json'
+    //   },
+      body: JSON.stringify({ phrase: `${phrase}` })
     });
     
     const data = await response.json();
