@@ -42,7 +42,7 @@ export const api = {
 
   async getUser(token) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user/info`, {
+      const response = await fetch(`${API_BASE_URL}/user/info`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
