@@ -102,6 +102,33 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [router]);
 
+  useEffect(() => {
+    // Add popstate event listener to handle browser back button
+    const handlePopState = (event) => {
+      if (event.state?.tab) {
+        setSelectedTab(event.state.tab);
+      } else {
+        setSelectedTab('overview');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    // Initialize the history state for the current tab
+    if (!window.history.state?.tab) {
+      window.history.replaceState({ tab: 'overview' }, '');
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setSelectedTab(tab);
+    window.history.pushState({ tab }, '');
+  };
+
   const handleBack = () => {
     setSelectedTab('overview');
   };
@@ -119,7 +146,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-white">Buy Crypto</h2>
                 <button 
-                  onClick={() => setSelectedTab('overview')}
+                  onClick={() => handleTabChange('overview')}
                   className="text-gray-400 hover:text-white"
                 >
                   ✕
@@ -169,28 +196,28 @@ export default function Dashboard() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button 
-                  onClick={() => setSelectedTab('send')}
+                  onClick={() => handleTabChange('send')}
                   className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl transition-all"
                 >
                   <ArrowRightCircle size={18} />
                   Send
                 </button>
                 <button 
-                  onClick={() => setSelectedTab('receive')}
+                  onClick={() => handleTabChange('receive')}
                   className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-xl transition-all"
                 >
                   <ArrowLeftCircle size={18} />
                   Receive
                 </button>
                 <button 
-                  onClick={() => setSelectedTab('buy')}
+                  onClick={() => handleTabChange('buy')}
                   className="flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2.5 rounded-xl transition-all"
                 >
                   <RefreshCw size={18} />
                   Buy
                 </button>
                 <button 
-                  onClick={() => setSelectedTab('link')}
+                  onClick={() => handleTabChange('link')}
                   className="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2.5 rounded-xl transition-all"
                 >
                   <Wallet size={18} />
@@ -257,7 +284,7 @@ export default function Dashboard() {
             <button
               key={item.id}
               onClick={() => {
-                setSelectedTab(item.id);
+                handleTabChange(item.id);
                 setIsMenuOpen(false);
               }}
               className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-white/10"
@@ -280,7 +307,7 @@ export default function Dashboard() {
               <p className="text-gray-400 mt-1">Welcome back, {userInfo.firstName || 'User'}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-400">{userInfo.email}</p>
+              <p className="text-sm text-gray-400 hidden lg:block">{userInfo.email}</p>
               <span className={`text-xs px-2 py-1 rounded-full ${
                 userInfo.isVerified ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
               }`}>
