@@ -58,10 +58,11 @@ export default function Dashboard() {
 
     const fetchUserData = async () => {
       try {
-        const [balanceResponse, transactionsResponse, userResponse] = await Promise.all([
+        const [balanceResponse, transactionsResponse, userResponse, walletsResponse] = await Promise.all([
           api.getBalance(token),
           api.getTransactions(token),
-          api.getUser(token)
+          api.getUser(token),
+          api.getWallets(token)
         ]);
         setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
@@ -74,6 +75,7 @@ export default function Dashboard() {
           country: userResponse.country,
           isVerified: userResponse.isVerified
         });
+        console.log('User wallets:', walletsResponse.wallets); // Console log the wallets
       } catch (error) {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {

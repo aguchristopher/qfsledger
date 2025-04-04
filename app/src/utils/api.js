@@ -151,6 +151,16 @@ export const api = {
     return data;
   },
 
+  async getWallets(token) {
+    const response = await fetch(`${API_BASE_URL}/user/wallets`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) throw new Error('Failed to fetch wallets');
+    return response.json();
+  },
+
   async requestPasswordReset(email) {
     const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
       method: 'POST',

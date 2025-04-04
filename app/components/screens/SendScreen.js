@@ -24,6 +24,7 @@ export default function SendScreen() {
               <option>BTC</option>
               <option>ETH</option>
               <option>USDT</option>
+              <option>XRP</option>
             </select>
           </div>
           <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-2">
