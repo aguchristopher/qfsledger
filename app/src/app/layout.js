@@ -1,7 +1,7 @@
-import { Inter, Lato } from "next/font/google";
+import { Inter, Lato, Poppins } from "next/font/google";
 import "./globals.css";
 
-const inter = Lato({
+const inter = Poppins({
   subsets: ["latin"],
   variable: "--font-inter",
   weight: '400'
