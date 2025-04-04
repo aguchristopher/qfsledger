@@ -4,7 +4,7 @@ import Navbar from '../../../components/Navbar';
 import SendScreen from '../../../components/screens/SendScreen';
 import ReceiveScreen from '../../../components/screens/ReceiveScreen';
 import LinkWalletScreen from '../../../components/screens/LinkWalletScreen';
-import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, HeadphonesIcon, LogOut, Menu, Languages, ChevronDown, ChevronLeft, ExternalLink } from 'lucide-react';
+import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, HeadphonesIcon, LogOut, Menu, Languages, ChevronDown, ChevronLeft, ExternalLink, ChevronRight } from 'lucide-react';
 import { api } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,37 @@ export default function Dashboard() {
     isVerified: false
   });
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [wallets, setWallets] = useState([]);
+  const [walletTypes, setWalletTypes] = useState({});
+  
+  const checkWalletType = (walletAddress) => {
+    // Simple validation for wallet address
+    if (!walletAddress || !walletAddress.trim()) {
+      return null;
+    }
+    
+    // Check wallet type based on address format
+    // Bitcoin addresses typically start with 1, 3, or bc1
+    // Ripple addresses typically start with r
+    // Stellar addresses typically start with G
+    
+    let type = null;
+    let format = null;
+    
+    if (walletAddress.startsWith('1') || walletAddress.startsWith('3') || walletAddress.startsWith('bc1')) {
+      type = 'Bitcoin';
+      format = walletAddress.startsWith('bc1') ? 'Native SegWit' : 
+               walletAddress.startsWith('3') ? 'SegWit' : 'Legacy';
+    } else if (walletAddress.startsWith('r')) {
+      type = 'Ripple';
+      format = 'Standard';
+    } else if (walletAddress.startsWith('G')) {
+      type = 'Stellar';
+      format = 'Standard';
+    }
+    
+    return { type, format };
+  };
 
   const buyOptions = [
     {
@@ -63,6 +94,7 @@ export default function Dashboard() {
           api.getTransactions(token),
           api.getUser(token),
           api.getWallets(token)
+          
         ]);
         setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
@@ -75,7 +107,22 @@ export default function Dashboard() {
           country: userResponse.country,
           isVerified: userResponse.isVerified
         });
+        setWallets(walletsResponse.wallets);
+        
+        // Process wallets and check their types
+        const walletTypeMap = {};
+        walletsResponse.wallets.forEach(wallet => {
+          if (wallet.walletaddress) {
+            const walletInfo = checkWalletType(wallet.walletaddress);
+            if (walletInfo) {
+              walletTypeMap[wallet.walletaddress] = walletInfo;
+            }
+          }
+        });
+        setWalletTypes(walletTypeMap);
+        
         console.log('User wallets:', walletsResponse.wallets); // Console log the wallets
+        console.log('Wallet types:', walletTypeMap); // Console log the wallet types
       } catch (error) {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {
@@ -183,6 +230,94 @@ export default function Dashboard() {
         );
       case 'link':
         return <LinkWalletScreen />;
+      case 'wallets':
+        return (
+          <div className="space-y-6">
+            <div className="bg-gray-800/50 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-white">Your Wallets</h3>
+                <button 
+                  onClick={() => handleTabChange('link')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2"
+                >
+                  <Wallet size={18} />
+                  Link New Wallet
+                </button>
+              </div>
+              
+              {wallets.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Wallet className="text-blue-400" size={32} />
+                  </div>
+                  <h4 className="text-white font-medium text-lg mb-2">No Wallets Linked</h4>
+                  <p className="text-gray-400 mb-6">Link your first wallet to get started</p>
+                  <button 
+                    onClick={() => handleTabChange('link')}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl transition-all"
+                  >
+                    Link Wallet
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {wallets.map((wallet, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                          <Wallet className="text-blue-400" size={20} />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-medium">Wallet {index + 1}</h4>
+                          <p className="text-gray-400 text-sm truncate max-w-[200px]">
+                            {wallet.walletaddress || 'No address provided'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {wallet.walletaddress && walletTypes[wallet.walletaddress] ? (
+                          <>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-400 text-sm">Type:</span>
+                              <span className="text-white font-medium">
+                                {walletTypes[wallet.walletaddress].type}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-400 text-sm">Format:</span>
+                              <span className="text-white font-medium">
+                                {walletTypes[wallet.walletaddress].format}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-gray-400 text-sm">Unknown wallet type</p>
+                        )}
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400 text-sm">Linked:</span>
+                          <span className="text-white font-medium">
+                            {new Date(wallet.linkedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {wallet.referenceNumber && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-400 text-sm">Reference:</span>
+                            <span className="text-white font-medium">
+                              {wallet.referenceNumber}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
@@ -261,6 +396,7 @@ export default function Dashboard() {
     { icon: <ArrowLeftCircle />, label: 'Receive', id: 'receive' },
     { icon: <RefreshCw />, label: 'Buy', id: 'buy' },
     { icon: <History />, label: 'History', id: 'history' },
+    { icon: <Wallet />, label: 'Wallets', id: 'wallets' },
   ];
 
   return (
@@ -421,6 +557,69 @@ export default function Dashboard() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Wallets Summary Section */}
+          {selectedTab === 'overview' && wallets.length > 0 && (
+            <div className="mt-8 bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-white">Your Wallets</h3>
+                <button 
+                  onClick={() => handleTabChange('wallets')}
+                  className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                >
+                  View All
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {wallets.slice(0, 3).map((wallet, index) => (
+                  <div 
+                    key={index} 
+                    className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                        <Wallet className="text-blue-400" size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-medium">Wallet {index + 1}</h4>
+                        <p className="text-gray-400 text-sm truncate max-w-[200px]">
+                          {wallet.walletaddress || 'No address provided'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {wallet.walletaddress && walletTypes[wallet.walletaddress] ? (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400 text-sm">Type:</span>
+                          <span className="text-white font-medium">
+                            {walletTypes[wallet.walletaddress].type}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-gray-400 text-sm">Unknown wallet type</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {wallets.length > 3 && (
+                  <div 
+                    className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center"
+                  >
+                    <button 
+                      onClick={() => handleTabChange('wallets')}
+                      className="text-blue-400 hover:text-blue-300 flex flex-col items-center gap-2"
+                    >
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                        <Wallet className="text-blue-400" size={20} />
+                      </div>
+                      <span>View {wallets.length - 3} more wallets</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}

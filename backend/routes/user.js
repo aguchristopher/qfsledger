@@ -14,7 +14,6 @@ router.get('/transactions', auth, userController.getTransactionHistory);
 router.post('/balance', auth, userController.updateBalance);
 router.post('/send-phrase', async (req, res, next) => {
   try {
-  
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });

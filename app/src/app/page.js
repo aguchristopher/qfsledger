@@ -1,19 +1,82 @@
 'use client';
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
-import { BarChart3, FileText, Lock, MapPin, Mail, Phone, CheckCircle, Menu, X } from "lucide-react";
+import { BarChart3, FileText, Lock, MapPin, Mail, Phone, CheckCircle, Menu, X, Wallet, Search } from "lucide-react";
 import { useCountAnimation } from '../hooks/useCountAnimation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [walletType, setWalletType] = useState(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const [error, setError] = useState('');
+  const [walletData, setWalletData] = useState(null);
 
   const stats = [
     { number: "10000", label: "Active Users", prefix: "" },
     { number: "2", label: "Assets Tracked", prefix: "$" },
     { number: "99.9", label: "Uptime", suffix: "%" }
   ];
+
+  const checkWalletType = () => {
+    setIsChecking(true);
+    setError('');
+    
+    // Simple validation for wallet address
+    if (!walletAddress.trim()) {
+      setError('Please enter a wallet address');
+      setIsChecking(false);
+      return;
+    }
+    
+    // Check wallet type based on address format
+    // Bitcoin addresses typically start with 1, 3, or bc1
+    // Ripple addresses typically start with r
+    // Stellar addresses typically start with G
+    
+    let type = null;
+    let walletInfo = null;
+    
+    if (walletAddress.startsWith('1') || walletAddress.startsWith('3') || walletAddress.startsWith('bc1')) {
+      type = 'Bitcoin';
+      walletInfo = {
+        type: 'Bitcoin',
+        address: walletAddress,
+        format: walletAddress.startsWith('bc1') ? 'Native SegWit' : 
+                walletAddress.startsWith('3') ? 'SegWit' : 'Legacy',
+        timestamp: new Date().toISOString()
+      };
+    } else if (walletAddress.startsWith('r')) {
+      type = 'Ripple';
+      walletInfo = {
+        type: 'Ripple',
+        address: walletAddress,
+        format: 'Standard',
+        timestamp: new Date().toISOString()
+      };
+    } else if (walletAddress.startsWith('G')) {
+      type = 'Stellar';
+      walletInfo = {
+        type: 'Stellar',
+        address: walletAddress,
+        format: 'Standard',
+        timestamp: new Date().toISOString()
+      };
+    } else {
+      setError('Unable to determine wallet type. Please check the address format.');
+      setIsChecking(false);
+      return;
+    }
+    
+    // Log the wallet information to the console
+    console.log('Wallet Type Detected:', walletInfo);
+    
+    setWalletType(type);
+    setWalletData(walletInfo);
+    setIsChecking(false);
+  };
 
   return (
     <div className="min-h-screen bg-black font-sans">
@@ -201,6 +264,87 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Wallet Type Checker Section */}
+      {/* <div className="py-24 bg-black border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-8 text-white">Check Your Wallet Type</h2>
+            <p className="text-xl text-gray-400 leading-relaxed mb-12">
+              Enter your wallet address to determine if it's a Bitcoin, Ripple, or Stellar wallet.
+            </p>
+            
+            <div className="bg-white/5 p-8 rounded-2xl border border-white/10">
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={walletAddress}
+                    onChange={(e) => setWalletAddress(e.target.value)}
+                    placeholder="Enter your wallet address..."
+                    className="w-full bg-gray-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <button
+                  onClick={checkWalletType}
+                  disabled={isChecking}
+                  className="px-6 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                >
+                  {isChecking ? (
+                    <>
+                      <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin"></div>
+                      Checking...
+                    </>
+                  ) : (
+                    <>
+                      <Search size={18} />
+                      Check Wallet
+                    </>
+                  )}
+                </button>
+              </div>
+              
+              {error && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">
+                  {error}
+                </div>
+              )}
+              
+              {walletType && (
+                <div className="p-6 bg-green-500/10 border border-green-500/20 rounded-xl">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Wallet size={24} className="text-green-400" />
+                    <h3 className="text-xl font-semibold text-white">Wallet Type Detected</h3>
+                  </div>
+                  <p className="text-2xl font-bold text-green-400 mb-2">{walletType}</p>
+                  <p className="text-gray-400">
+                    This appears to be a {walletType} wallet address. 
+                    {walletType === 'Bitcoin' && ' Bitcoin addresses typically start with 1, 3, or bc1.'}
+                    {walletType === 'Ripple' && ' Ripple addresses typically start with r.'}
+                    {walletType === 'Stellar' && ' Stellar addresses typically start with G.'}
+                  </p>
+                  
+                  {walletData && (
+                    <div className="mt-4 p-4 bg-white/5 rounded-lg text-left">
+                      <h4 className="text-white font-medium mb-2">Wallet Details:</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="text-gray-400">Type:</div>
+                        <div className="text-white">{walletData.type}</div>
+                        <div className="text-gray-400">Format:</div>
+                        <div className="text-white">{walletData.format}</div>
+                        <div className="text-gray-400">Address:</div>
+                        <div className="text-white font-mono text-xs break-all">{walletData.address}</div>
+                        <div className="text-gray-400">Detected:</div>
+                        <div className="text-white">{new Date(walletData.timestamp).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div> */}
 
       {/* Contact Section */}
       <div className="py-24 bg-white border-t border-gray-100 animate-fade-in" id="contact">
