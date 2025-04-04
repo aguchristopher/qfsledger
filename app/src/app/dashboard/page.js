@@ -19,6 +19,14 @@ export default function Dashboard() {
   const [balanceData, setBalanceData] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [username, setUsername] = useState('');
+  const [userInfo, setUserInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    country: '',
+    isVerified: false
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -37,6 +45,14 @@ export default function Dashboard() {
         setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
         setUsername(userResponse.username);
+        setUserInfo({
+          firstName: userResponse.firstName,
+          lastName: userResponse.lastName,
+          email: userResponse.email,
+          phoneNumber: userResponse.phoneNumber,
+          country: userResponse.country,
+          isVerified: userResponse.isVerified
+        });
       } catch (error) {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {
@@ -196,22 +212,43 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 p-8 pt-24">
         <div className="max-w-7xl mx-auto">
-          <header className="flex items-center gap-4 mb-8 bg-white/5 p-6 rounded-2xl backdrop-blur-sm">
-            {selectedTab !== 'overview' && (
-              <button
-                onClick={handleBack}
-                className="p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 md:hidden"
-              >
-                <ChevronLeft size={20} />
-              </button>
-            )}
+          <header className="flex items-center justify-between gap-4 mb-8 bg-white/5 p-6 rounded-2xl backdrop-blur-sm">
             <div>
               <h1 className="text-3xl font-bold text-white">
                 {selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1)}
               </h1>
-              <p className="text-gray-400 mt-1">Welcome back, {username || 'User'}</p>
+              <p className="text-gray-400 mt-1">Welcome back, {userInfo.firstName || 'User'}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-400">{userInfo.email}</p>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                userInfo.isVerified ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+              }`}>
+                {userInfo.isVerified ? 'Verified' : 'Unverified'}
+              </span>
             </div>
           </header>
+
+          {selectedTab === 'overview' && (
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white/5 p-4 rounded-xl">
+                <h3 className="text-gray-400 text-sm">Account Type</h3>
+                <p className="text-white font-medium mt-1">Personal Account</p>
+              </div>
+              <div className="bg-white/5 p-4 rounded-xl">
+                <h3 className="text-gray-400 text-sm">Phone Number</h3>
+                <p className="text-white font-medium mt-1">{userInfo.phoneNumber}</p>
+              </div>
+              <div className="bg-white/5 p-4 rounded-xl">
+                <h3 className="text-gray-400 text-sm">Country</h3>
+                <p className="text-white font-medium mt-1">{userInfo.country}</p>
+              </div>
+              <div className="bg-white/5 p-4 rounded-xl">
+                <h3 className="text-gray-400 text-sm">Account Status</h3>
+                <p className="text-white font-medium mt-1">{userInfo.isVerified ? 'Active' : 'Pending Verification'}</p>
+              </div>
+            </div>
+          )}
 
           {renderScreen()}
 
