@@ -57,7 +57,7 @@ export default function Dashboard() {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {
           localStorage.removeItem('token');
-          router.push('/login');
+          // router.push('/login');
         }
       }
     };
