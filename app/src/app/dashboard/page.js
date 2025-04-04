@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react';
 import Navbar from '../../../components/Navbar';
 import SendScreen from '../../../components/screens/SendScreen';
 import ReceiveScreen from '../../../components/screens/ReceiveScreen';
-import SwapScreen from '../../../components/screens/SwapScreen';
 import LinkWalletScreen from '../../../components/screens/LinkWalletScreen';
-import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, HeadphonesIcon, LogOut, Menu, Languages, ChevronDown, ChevronLeft } from 'lucide-react';
+import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, HeadphonesIcon, LogOut, Menu, Languages, ChevronDown, ChevronLeft, ExternalLink } from 'lucide-react';
 import { api } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -27,6 +26,28 @@ export default function Dashboard() {
     country: '',
     isVerified: false
   });
+  const [showBuyModal, setShowBuyModal] = useState(false);
+
+  const buyOptions = [
+    {
+      name: 'MoonPay',
+      description: 'Buy crypto with credit card or bank transfer',
+      url: 'https://www.moonpay.com',
+      logo: 'https://cdn.brandfetch.io/id6XER0Pfn/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B'
+    },
+    {
+      name: 'Binance',
+      description: 'World\'s largest crypto exchange',
+      url: 'https://www.binance.com',
+      logo: 'https://cdn.brandfetch.io/id-pjrLx_q/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B'
+    },
+    {
+      name: 'Coinbase',
+      description: 'US-based trusted exchange platform',
+      url: 'https://www.coinbase.com',
+      logo: 'https://cdn.brandfetch.io/idwDWo4ONQ/w/400/h/400/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B'
+    }
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -57,7 +78,6 @@ export default function Dashboard() {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {
           localStorage.removeItem('token');
-          // router.push('/login');
         }
       }
     };
@@ -92,8 +112,46 @@ export default function Dashboard() {
         return <SendScreen balance={balanceData} onSuccess={() => fetchUserData()} />;
       case 'receive':
         return <ReceiveScreen />;
-      case 'swap':
-        return <SwapScreen />;
+      case 'buy':
+        return (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-2xl p-6 max-w-2xl w-full m-4">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-white">Buy Crypto</h2>
+                <button 
+                  onClick={() => setSelectedTab('overview')}
+                  className="text-gray-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="grid gap-4">
+                {buyOptions.map((option) => (
+                  <a
+                    key={option.name}
+                    href={option.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img 
+                        src={option.logo} 
+                        alt={option.name} 
+                        className="w-12 h-12 object-contain rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-white font-medium">{option.name}</h3>
+                        <p className="text-gray-400 text-sm">{option.description}</p>
+                      </div>
+                    </div>
+                    <ExternalLink className="text-gray-400" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
       case 'link':
         return <LinkWalletScreen />;
       default:
@@ -125,11 +183,11 @@ export default function Dashboard() {
                   Receive
                 </button>
                 <button 
-                  onClick={() => setSelectedTab('swap')}
+                  onClick={() => setSelectedTab('buy')}
                   className="flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2.5 rounded-xl transition-all"
                 >
                   <RefreshCw size={18} />
-                  Swap
+                  Buy
                 </button>
                 <button 
                   onClick={() => setSelectedTab('link')}
@@ -168,6 +226,14 @@ export default function Dashboard() {
     }
   };
 
+  const mobileMenuItems = [
+    { icon: <Wallet />, label: 'Overview', id: 'overview' },
+    { icon: <ArrowRightCircle />, label: 'Send', id: 'send' },
+    { icon: <ArrowLeftCircle />, label: 'Receive', id: 'receive' },
+    { icon: <RefreshCw />, label: 'Buy', id: 'buy' },
+    { icon: <History />, label: 'History', id: 'history' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-900">
       <Toaster position="top-center" />
@@ -187,13 +253,7 @@ export default function Dashboard() {
           <span className="text-white font-medium">Menu</span>
         </div>
         <div className="px-2 pt-4 pb-3 space-y-1">
-          {[
-            { icon: <Wallet />, label: 'Overview', id: 'overview' },
-            { icon: <ArrowRightCircle />, label: 'Send', id: 'send' },
-            { icon: <ArrowLeftCircle />, label: 'Receive', id: 'receive' },
-            { icon: <RefreshCw />, label: 'Swap', id: 'swap' },
-            { icon: <History />, label: 'History', id: 'history' },
-          ].map((item) => (
+          {mobileMenuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => {
@@ -229,7 +289,7 @@ export default function Dashboard() {
             </div>
           </header>
 
-          {selectedTab === 'overview' && (
+          {/* {selectedTab === 'overview' && (
             <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white/5 p-4 rounded-xl">
                 <h3 className="text-gray-400 text-sm">Account Type</h3>
@@ -248,7 +308,7 @@ export default function Dashboard() {
                 <p className="text-white font-medium mt-1">{userInfo.isVerified ? 'Active' : 'Pending Verification'}</p>
               </div>
             </div>
-          )}
+          )} */}
 
           {renderScreen()}
 
