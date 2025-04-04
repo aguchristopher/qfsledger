@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {QRCodeSVG} from 'qrcode.react';
+import QRCode from 'qrcode.react';
 import { Copy, Check } from 'lucide-react';
 
 export default function ReceiveScreen() {
@@ -56,7 +56,7 @@ export default function ReceiveScreen() {
 
       <div className="bg-white/5 p-6 rounded-xl mb-6">
         <div className="flex justify-center mb-4">
-          <QRCodeSVG
+          <QRCode 
             value={walletAddress}
             size={200}
             level="H"
