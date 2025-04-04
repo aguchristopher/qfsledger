@@ -5,8 +5,20 @@ const { generateOTP } = require('../utils/helpers');
 
 exports.getUserInfo = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password -otp');
-    res.json(user);
+    const user = await User.findById(req.user.id)
+      .select('-password -otp -resetPasswordToken -resetPasswordExpires');
+    res.json({
+      id: user._id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      country: user.country,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      totalBalance: user.totalBalance
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user info' });
   }

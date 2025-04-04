@@ -74,7 +74,13 @@ exports.login = async (req, res) => {
     res.json({
       user: {
         id: user._id,
-        email: user.email
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        country: user.country,
+        isVerified: user.isVerified
       },
       token
     });

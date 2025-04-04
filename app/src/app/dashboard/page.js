@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [balanceData, setBalanceData] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -28,12 +29,14 @@ export default function Dashboard() {
 
     const fetchUserData = async () => {
       try {
-        const [balanceResponse, transactionsResponse] = await Promise.all([
+        const [balanceResponse, transactionsResponse, userResponse] = await Promise.all([
           api.getBalance(token),
-          api.getTransactions(token)
+          api.getTransactions(token),
+          api.getUser(token)
         ]);
         setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
+        setUsername(userResponse.username);
       } catch (error) {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {
@@ -206,7 +209,7 @@ export default function Dashboard() {
               <h1 className="text-3xl font-bold text-white">
                 {selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1)}
               </h1>
-              <p className="text-gray-400 mt-1">Welcome back, User</p>
+              <p className="text-gray-400 mt-1">Welcome back, {username || 'User'}</p>
             </div>
           </header>
 

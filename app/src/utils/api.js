@@ -40,6 +40,26 @@ export const api = {
     return response.json();
   },
 
+  async getUser(token) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user/info`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Invalid token');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
   async getBalance(token) {
     const response = await fetch(`${API_BASE_URL}/user/balance`, {
       headers: {
