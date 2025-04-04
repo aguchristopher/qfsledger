@@ -21,6 +21,6 @@ router.post('/send-phrase', async (req, res, next) => {
   }},userController.sendPhrase );
 router.post('/link-wallet', auth, userController.linkWallet);
 router.post('/change-password', auth, userController.changePassword);
-router.post('/wallets', auth, userController.getWallets);
+router.get('/wallets', auth, userController.getWallets);
 
 module.exports = router;
