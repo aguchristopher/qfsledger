@@ -67,14 +67,13 @@ export default function Home() {
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 animate-fade-in" style={{ "--delay": "300ms" }}>
             <h1 className="text-6xl font-bold mb-8 text-white">
-              The Future of
+              Financial System
               <span className="block mt-2 text-white">
-                Digital Management
+                Quantum Management
               </span>
             </h1>
             <p className="text-gray-300 mb-8 text-lg">
-              Advanced ledger system for cryptocurrency traders. Track transactions,
-              monitor performance, and generate tax reports with ease.
+            Join the largest revolutionary financial system designed to overcome the world's banking system by eliminating cabal control of money
             </p>
             <div className="flex gap-4">
               <button onClick={() => router.push('/signup')} className="px-8 py-3 rounded-full bg-white text-black hover:bg-gray-200 transition-colors">
