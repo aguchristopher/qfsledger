@@ -1,5 +1,6 @@
 import { Inter, Lato, Poppins } from "next/font/google";
 import "./globals.css";
+import ClientGoogleTranslate from '../components/ClientGoogleTranslate';
 
 const inter = Poppins({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} font-sans antialiased`}>
         {children}
+        <ClientGoogleTranslate />
       </body>
     </html>
   );
