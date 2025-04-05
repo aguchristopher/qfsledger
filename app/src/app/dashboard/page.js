@@ -31,30 +31,36 @@ export default function Dashboard() {
   const [walletTypes, setWalletTypes] = useState({});
   
   const checkWalletType = (walletAddress) => {
+    // Log the input for debugging
+    console.log('Checking wallet type for:', walletAddress);
+
     // Simple validation for wallet address
     if (!walletAddress || !walletAddress.trim()) {
+      console.log('Invalid wallet address');
       return null;
     }
     
-    // Check wallet type based on address format
-    // Bitcoin addresses typically start with 1, 3, or bc1
-    // Ripple addresses typically start with r
-    // Stellar addresses typically start with G
+    // Normalize the wallet address
+    const address = walletAddress.trim();
     
     let type = null;
     let format = null;
     
-    if (walletAddress.startsWith('1') || walletAddress.startsWith('3') || walletAddress.startsWith('bc1')) {
+    // Enhanced pattern matching
+    if (/^(1|3|bc1)[a-zA-Z0-9]{25,39}$/.test(address)) {
       type = 'Bitcoin';
-      format = walletAddress.startsWith('bc1') ? 'Native SegWit' : 
-               walletAddress.startsWith('3') ? 'SegWit' : 'Legacy';
-    } else if (walletAddress.startsWith('r')) {
+      format = address.startsWith('bc1') ? 'Native SegWit' : 
+               address.startsWith('3') ? 'SegWit' : 'Legacy';
+    } else if (/^r[a-zA-Z0-9]{24,34}$/.test(address)) {
       type = 'Ripple';
       format = 'Standard';
-    } else if (walletAddress.startsWith('G')) {
+    } else if (/^G[A-Z0-9]{55}$/.test(address)) {
       type = 'Stellar';
       format = 'Standard';
     }
+
+    // Log the result
+    console.log('Wallet type detection result:', { type, format });
     
     return { type, format };
   };
@@ -111,14 +117,25 @@ export default function Dashboard() {
         
         // Process wallets and check their types
         const walletTypeMap = {};
-        walletsResponse.wallets.forEach(wallet => {
+        console.log('Processing wallets:', walletsResponse.wallets);
+
+        walletsResponse.wallets.forEach((wallet, index) => {
+          console.log(`Processing wallet ${index + 1}:`, wallet);
+          
           if (wallet.walletaddress) {
+            console.log(`Checking wallet address: ${wallet.walletaddress}`);
             const walletInfo = checkWalletType(wallet.walletaddress);
+            console.log(`Wallet ${index + 1} info:`, walletInfo);
+            
             if (walletInfo) {
               walletTypeMap[wallet.walletaddress] = walletInfo;
             }
+          } else {
+            console.log(`Wallet ${index + 1} has no address`);
           }
         });
+
+        console.log('Final wallet types map:', walletTypeMap);
         setWalletTypes(walletTypeMap);
         
         console.log('User wallets:', walletsResponse.wallets); // Console log the wallets
