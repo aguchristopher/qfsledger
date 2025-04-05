@@ -136,6 +136,14 @@ export default function Dashboard() {
         });
 
         console.log('Final wallet types map:', walletTypeMap);
+        // Add additional debugging output
+        walletsResponse.wallets.forEach(wallet => {
+          if (wallet.walletaddress) {
+            console.log('Wallet address:', wallet.walletaddress);
+            const type = checkWalletType(wallet.walletaddress);
+            console.log('Detected wallet type:', type);
+          }
+        });
         setWalletTypes(walletTypeMap);
         
         console.log('User wallets:', walletsResponse.wallets); // Console log the wallets
