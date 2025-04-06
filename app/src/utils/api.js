@@ -157,7 +157,7 @@ export const api = {
         'Authorization': `Bearer ${token}`
       }
     });
-    if (!response.ok) throw new Error('Failed to fetch wallets');
+    if (!response.ok) throw alert('Failed to fetch wallets');
     return response.json();
   },
 

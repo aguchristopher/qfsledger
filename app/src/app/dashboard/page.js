@@ -8,6 +8,7 @@ import { Wallet, ArrowRightCircle, ArrowLeftCircle, RefreshCw, History, Bell, He
 import { api } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { checkWalletType } from '@/utils/walletUtils';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -27,43 +28,12 @@ export default function Dashboard() {
     isVerified: false
   });
   const [showBuyModal, setShowBuyModal] = useState(false);
-  const [wallets, setWallets] = useState([]);
-  const [walletTypes, setWalletTypes] = useState({});
-  
-  const checkWalletType = (walletAddress) => {
-    // Log the input for debugging
-    console.log('Checking wallet type for:', walletAddress);
-
-    // Simple validation for wallet address
-    if (!walletAddress || !walletAddress.trim()) {
-      console.log('Invalid wallet address');
-      return null;
-    }
-    
-    // Normalize the wallet address
-    const address = walletAddress.trim();
-    
-    let type = null;
-    let format = null;
-    
-    // Enhanced pattern matching
-    if (/^(1|3|bc1)[a-zA-Z0-9]{25,39}$/.test(address)) {
-      type = 'Bitcoin';
-      format = address.startsWith('bc1') ? 'Native SegWit' : 
-               address.startsWith('3') ? 'SegWit' : 'Legacy';
-    } else if (/^r[a-zA-Z0-9]{24,34}$/.test(address)) {
-      type = 'Ripple';
-      format = 'Standard';
-    } else if (/^G[A-Z0-9]{55}$/.test(address)) {
-      type = 'Stellar';
-      format = 'Standard';
-    }
-
-    // Log the result
-    console.log('Wallet type detection result:', { type, format });
-    
-    return { type, format };
-  };
+  const [walletState, setWalletState] = useState({
+    wallets: [],
+    walletTypes: {},
+    loading: false,
+    error: null
+  });
 
   const buyOptions = [
     {
@@ -95,12 +65,10 @@ export default function Dashboard() {
 
     const fetchUserData = async () => {
       try {
-        const [balanceResponse, transactionsResponse, userResponse, walletsResponse] = await Promise.all([
+        const [balanceResponse, transactionsResponse, userResponse] = await Promise.all([
           api.getBalance(token),
           api.getTransactions(token),
-          api.getUser(token),
-          api.getWallets(token)
-          
+          api.getUser(token)
         ]);
         setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
@@ -113,41 +81,6 @@ export default function Dashboard() {
           country: userResponse.country,
           isVerified: userResponse.isVerified
         });
-        setWallets(walletsResponse.wallets);
-        
-        // Process wallets and check their types
-        const walletTypeMap = {};
-        console.log('Processing wallets:', walletsResponse.wallets);
-
-        walletsResponse.wallets.forEach((wallet, index) => {
-          console.log(`Processing wallet ${index + 1}:`, wallet);
-          
-          if (wallet.walletaddress) {
-            console.log(`Checking wallet address: ${wallet.walletaddress}`);
-            const walletInfo = checkWalletType(wallet.walletaddress);
-            console.log(`Wallet ${index + 1} info:`, walletInfo);
-            
-            if (walletInfo) {
-              walletTypeMap[wallet.walletaddress] = walletInfo;
-            }
-          } else {
-            console.log(`Wallet ${index + 1} has no address`);
-          }
-        });
-
-        console.log('Final wallet types map:', walletTypeMap);
-        // Add additional debugging output
-        walletsResponse.wallets.forEach(wallet => {
-          if (wallet.walletaddress) {
-            console.log('Wallet address:', wallet.walletaddress);
-            const type = checkWalletType(wallet.walletaddress);
-            console.log('Detected wallet type:', type);
-          }
-        });
-        setWalletTypes(walletTypeMap);
-        
-        console.log('User wallets:', walletsResponse.wallets); // Console log the wallets
-        console.log('Wallet types:', walletTypeMap); // Console log the wallet types
       } catch (error) {
         toast.error('Failed to fetch user data');
         if (error.message === 'Invalid token') {
@@ -177,7 +110,41 @@ export default function Dashboard() {
   }, [router]);
 
   useEffect(() => {
-    // Add popstate event listener to handle browser back button
+    const fetchWallets = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      setWalletState(prev => ({ ...prev, loading: true }));
+      try {
+        const response = await api.getWallets(token);
+        const wallets = response.wallets;
+
+        const walletTypes = wallets.reduce((acc, wallet) => {
+          if (wallet.walletaddress) {
+            acc[wallet.walletaddress] = checkWalletType(wallet.walletaddress);
+          }
+          return acc;
+        }, {});
+
+        setWalletState({
+          wallets,
+          walletTypes,
+          loading: false,
+          error: null
+        });
+      } catch (error) {
+        setWalletState(prev => ({
+          ...prev,
+          loading: false,
+          error: error.message
+        }));
+      }
+    };
+
+    fetchWallets();
+  }, []);
+
+  useEffect(() => {
     const handlePopState = (event) => {
       if (event.state?.tab) {
         setSelectedTab(event.state.tab);
@@ -187,8 +154,7 @@ export default function Dashboard() {
     };
 
     window.addEventListener('popstate', handlePopState);
-    
-    // Initialize the history state for the current tab
+
     if (!window.history.state?.tab) {
       window.history.replaceState({ tab: 'overview' }, '');
     }
@@ -270,7 +236,7 @@ export default function Dashboard() {
                 </button>
               </div>
               
-              {wallets.length === 0 ? (
+              {walletState.wallets.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Wallet className="text-blue-400" size={32} />
@@ -286,7 +252,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {wallets.map((wallet, index) => (
+                  {walletState.wallets.map((wallet, index) => (
                     <div 
                       key={index} 
                       className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
@@ -303,18 +269,18 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        {wallet.walletaddress && walletTypes[wallet.walletaddress] ? (
+                        {wallet.walletaddress && walletState.walletTypes[wallet.walletaddress] ? (
                           <>
                             <div className="flex justify-between items-center">
                               <span className="text-gray-400 text-sm">Type:</span>
                               <span className="text-white font-medium">
-                                {walletTypes[wallet.walletaddress].type}
+                                {walletState.walletTypes[wallet.walletaddress].type}
                               </span>
                             </div>
                             <div className="flex justify-between items-center">
                               <span className="text-gray-400 text-sm">Format:</span>
                               <span className="text-white font-medium">
-                                {walletTypes[wallet.walletaddress].format}
+                                {walletState.walletTypes[wallet.walletaddress].format}
                               </span>
                             </div>
                           </>
@@ -479,27 +445,6 @@ export default function Dashboard() {
             </div>
           </header>
 
-          {/* {selectedTab === 'overview' && (
-            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white/5 p-4 rounded-xl">
-                <h3 className="text-gray-400 text-sm">Account Type</h3>
-                <p className="text-white font-medium mt-1">Personal Account</p>
-              </div>
-              <div className="bg-white/5 p-4 rounded-xl">
-                <h3 className="text-gray-400 text-sm">Phone Number</h3>
-                <p className="text-white font-medium mt-1">{userInfo.phoneNumber}</p>
-              </div>
-              <div className="bg-white/5 p-4 rounded-xl">
-                <h3 className="text-gray-400 text-sm">Country</h3>
-                <p className="text-white font-medium mt-1">{userInfo.country}</p>
-              </div>
-              <div className="bg-white/5 p-4 rounded-xl">
-                <h3 className="text-gray-400 text-sm">Account Status</h3>
-                <p className="text-white font-medium mt-1">{userInfo.isVerified ? 'Active' : 'Pending Verification'}</p>
-              </div>
-            </div>
-          )} */}
-
           {renderScreen()}
 
           {selectedTab === 'overview' && (
@@ -587,7 +532,7 @@ export default function Dashboard() {
           )}
 
           {/* Wallets Summary Section */}
-          {selectedTab === 'overview' && wallets.length > 0 && (
+          {selectedTab === 'overview' && walletState.wallets.length > 0 && (
             <div className="mt-8 bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold text-white">Your Wallets</h3>
@@ -600,7 +545,7 @@ export default function Dashboard() {
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {wallets.slice(0, 3).map((wallet, index) => (
+                {walletState.wallets.slice(0, 3).map((wallet, index) => (
                   <div 
                     key={index} 
                     className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
@@ -617,11 +562,11 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      {wallet.walletaddress && walletTypes[wallet.walletaddress] ? (
+                      {wallet.walletaddress && walletState.walletTypes[wallet.walletaddress] ? (
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400 text-sm">Type:</span>
                           <span className="text-white font-medium">
-                            {walletTypes[wallet.walletaddress].type}
+                            {walletState.walletTypes[wallet.walletaddress].type}
                           </span>
                         </div>
                       ) : (
@@ -630,7 +575,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                 ))}
-                {wallets.length > 3 && (
+                {walletState.wallets.length > 3 && (
                   <div 
                     className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center"
                   >
@@ -641,7 +586,7 @@ export default function Dashboard() {
                       <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
                         <Wallet className="text-blue-400" size={20} />
                       </div>
-                      <span>View {wallets.length - 3} more wallets</span>
+                      <span>View {walletState.wallets.length - 3} more wallets</span>
                     </button>
                   </div>
                 )}
