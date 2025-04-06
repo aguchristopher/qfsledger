@@ -134,7 +134,7 @@ export default function Dashboard() {
       console.log(`Total wallets to process: ${wallets.length}`);
 
       for (const wallet of wallets) {
-        if (wallet.walletAddress && walletState.walletTypes[wallet.walletAddress]) {
+        if (wallet.walletAddress) {
           const type = walletState.walletTypes[wallet.walletAddress].type;
           console.log(`\nWallet Found:`);
           console.log(`Address: ${wallet.walletAddress}`);
@@ -164,7 +164,7 @@ export default function Dashboard() {
               break;
           }
         } else {
-          console.log(`\nSkipped wallet: ${wallet.walletaddress || 'No address'}`);
+          console.log(`\nSkipped wallet: ${wallet.walletAddress || 'No address'}`);
           console.log('Reason: Invalid address or unknown type');
         }
       }
@@ -200,11 +200,11 @@ export default function Dashboard() {
         const walletTypes = {};
         
         for (const wallet of wallets) {
-          if (wallet.walletaddress) {
-            const typeInfo = checkWalletType(wallet.walletaddress);
+          if (wallet.walletAddress) {
+            const typeInfo = checkWalletType(wallet.walletAddress);
             if (typeInfo) {
-              walletTypes[wallet.walletaddress] = typeInfo;
-              console.log(`Detected wallet type for ${wallet.walletaddress}:`, typeInfo);
+              walletTypes[wallet.walletAddress] = typeInfo;
+              console.log(`Detected wallet type for ${wallet.walletAddress}:`, typeInfo);
             }
           }
         }
@@ -341,12 +341,12 @@ export default function Dashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {walletState.wallets.map((wallet, index) => {
-                    const walletType = walletState.walletTypes[wallet.walletaddress]?.type;
-                    const balance = walletBalances[wallet.walletaddress]?.balance || 0;
+                    const walletType = walletState.walletTypes[wallet.walletAddress]?.type;
+                    const balance = walletBalances[wallet.walletAddress]?.balance || 0;
                     
                     return (
                       <div 
-                        key={wallet.walletaddress || index} 
+                        key={wallet.walletAddress || index} 
                         className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
                       >
                         <div className="flex items-center gap-3 mb-3">
@@ -356,7 +356,7 @@ export default function Dashboard() {
                           <div>
                             <h4 className="text-white font-medium">{walletType || 'Unknown'} Wallet</h4>
                             <p className="text-gray-400 text-sm truncate max-w-[200px]">
-                              {wallet.walletaddress || 'No address provided'}
+                              {wallet.walletAddress || 'No address provided'}
                             </p>
                           </div>
                         </div>
@@ -374,11 +374,11 @@ export default function Dashboard() {
                               </span>
                             )}
                           </div>
-                          {walletBalances[wallet.walletaddress]?.lastUpdated && (
+                          {walletBalances[wallet.walletAddress]?.lastUpdated && (
                             <div className="flex justify-between items-center">
                               <span className="text-gray-400 text-sm">Last Updated:</span>
                               <span className="text-gray-400 text-sm">
-                                {new Date(walletBalances[wallet.walletaddress].lastUpdated).toLocaleTimeString()}
+                                {new Date(walletBalances[wallet.walletAddress].lastUpdated).toLocaleTimeString()}
                               </span>
                             </div>
                           )}
@@ -652,12 +652,12 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {walletState.wallets.slice(0, 3).map((wallet, index) => {
-                  const walletType = walletState.walletTypes[wallet.walletaddress]?.type;
-                  const balance = walletBalances[wallet.walletaddress]?.balance || 0;
+                  const walletType = walletState.walletTypes[wallet.walletAddress]?.type;
+                  const balance = walletBalances[wallet.walletAddress]?.balance || 0;
                   
                   return (
                     <div 
-                      key={wallet.walletaddress || index} 
+                      key={wallet.walletAddress || index} 
                       className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
                     >
                       <div className="flex items-center gap-3 mb-3">
@@ -667,7 +667,7 @@ export default function Dashboard() {
                         <div>
                           <h4 className="text-white font-medium">{walletType || 'Unknown'} Wallet</h4>
                           <p className="text-gray-400 text-sm truncate max-w-[200px]">
-                            {wallet.walletaddress || 'No address provided'}
+                            {wallet.walletAddress || 'No address provided'}
                           </p>
                         </div>
                       </div>
