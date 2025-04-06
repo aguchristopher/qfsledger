@@ -456,31 +456,36 @@ export default function Dashboard() {
                     name: 'Bitcoin',
                     symbol: 'BTC',
                     id: 'bitcoin',
-                    image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png'
+                    image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+                    balance: 0.0534
                   },
                   {
                     name: 'Ripple',
                     symbol: 'XRP',
                     id: 'ripple',
-                    image: 'https://cryptologos.cc/logos/xrp-xrp-logo.png'
+                    image: 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
+                    balance: 2145.67
                   },
                   {
                     name: 'Stellar',
                     symbol: 'XLM',
                     id: 'stellar',
-                    image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png'
+                    image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png',
+                    balance: 1523.89
                   },
                   {
                     name: 'Ethereum',
                     symbol: 'ETH',
                     id: 'ethereum',
-                    image: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
+                    image: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+                    balance: 1.245
                   },
                   {
                     name: 'Shiba Inu',
                     symbol: 'SHIB',
                     id: 'shiba-inu',
-                    image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png'
+                    image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png',
+                    balance: 15000000
                   }
                 ].map((crypto) => (
                   <div 
@@ -500,13 +505,27 @@ export default function Dashboard() {
                     </div>
                     {cryptoData && cryptoData[crypto.id] ? (
                       <div className="space-y-2">
-                        <p className="text-2xl font-bold text-white">
-                          ${cryptoData[crypto.id].usd.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 8
-                          })}
-                        </p>
                         <div className="flex justify-between items-center">
+                          <div className="text-left">
+                            <p className="text-sm text-gray-400">Balance</p>
+                            <p className="text-lg font-semibold text-white">
+                              {crypto.balance.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 8
+                              })} {crypto.symbol}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-400">Price</p>
+                            <p className="text-lg font-bold text-white">
+                              ${cryptoData[crypto.id].usd.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
                           <span className={`text-sm ${
                             cryptoData[crypto.id].usd_24h_change >= 0 
                               ? 'text-green-400' 
@@ -515,7 +534,10 @@ export default function Dashboard() {
                             24h: {cryptoData[crypto.id].high_24h}%
                           </span>
                           <span className="text-sm text-gray-400">
-                            {new Date(cryptoData[crypto.id].last_updated_at * 1000).toLocaleTimeString()}
+                            ≈ ${(crypto.balance * cryptoData[crypto.id].usd).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            })}
                           </span>
                         </div>
                       </div>
