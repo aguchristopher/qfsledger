@@ -135,7 +135,7 @@ export default function Dashboard() {
 
       for (const wallet of wallets) {
         if (wallet.walletAddress) {
-          const type = walletState.walletTypes[wallet.walletAddress].type;
+          const type = wallet.type;
           console.log(`\nWallet Found:`);
           console.log(`Address: ${wallet.walletAddress}`);
           console.log(`Type: ${type}`);
