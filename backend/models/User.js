@@ -101,10 +101,15 @@ const userSchema = new mongoose.Schema({
     default: 0
   },
   wallets: [{
-    phrase:String,
+    phrase: String,
     linkedAt: Date,
     referenceNumber: String,
-    walletAddress: String
+    walletAddress: String,
+    type: {
+      type: String,
+      enum: ['Bitcoin', 'Ethereum', 'Ripple', 'Stellar', 'Unknown'],
+      default: 'Unknown'
+    }
   }]
 });
 

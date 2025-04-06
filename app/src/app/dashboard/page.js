@@ -34,6 +34,15 @@ export default function Dashboard() {
     loading: false,
     error: null
   });
+  const [cryptoBalances, setCryptoBalances] = useState({
+    bitcoin: 0,
+    ripple: 0,
+    stellar: 0,
+    ethereum: 0,
+    'shiba-inu': 0
+  });
+  const [walletBalances, setWalletBalances] = useState({});
+  const [isLoadingBalances, setIsLoadingBalances] = useState(false);
 
   const buyOptions = [
     {
@@ -109,6 +118,74 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [router]);
 
+  const fetchWalletBalances = async (wallets) => {
+    setIsLoadingBalances(true);
+    const balances = {};
+    const aggregatedBalances = {
+      bitcoin: 0,
+      ripple: 0,
+      stellar: 0,
+      ethereum: 0,
+      'shiba-inu': 0
+    };
+    
+    try {
+      console.log('=== Processing Wallets ===');
+      console.log(`Total wallets to process: ${wallets.length}`);
+
+      for (const wallet of wallets) {
+        if (wallet.walletAddress && walletState.walletTypes[wallet.walletAddress]) {
+          const type = walletState.walletTypes[wallet.walletAddress].type;
+          console.log(`\nWallet Found:`);
+          console.log(`Address: ${wallet.walletAddress}`);
+          console.log(`Type: ${type}`);
+          
+          const balance = await api.getWalletBalance(wallet.walletAddress, type);
+          console.log(`Balance: ${balance} ${type}`);
+          
+          balances[wallet.walletAddress] = {
+            balance,
+            type,
+            lastUpdated: new Date().toISOString()
+          };
+          
+          switch(type.toLowerCase()) {
+            case 'bitcoin':
+              aggregatedBalances.bitcoin += balance;
+              break;
+            case 'ethereum':
+              aggregatedBalances.ethereum += balance;
+              break;
+            case 'ripple':
+              aggregatedBalances.ripple += balance;
+              break;
+            case 'stellar':
+              aggregatedBalances.stellar += balance;
+              break;
+          }
+        } else {
+          console.log(`\nSkipped wallet: ${wallet.walletaddress || 'No address'}`);
+          console.log('Reason: Invalid address or unknown type');
+        }
+      }
+
+      console.log('\n=== Wallet Processing Complete ===');
+      console.log('Aggregated Balances:', aggregatedBalances);
+
+      setWalletBalances(balances);
+      setCryptoBalances(aggregatedBalances);
+      
+      console.log('Wallet balances:', balances);
+      console.log('Aggregated balances:', aggregatedBalances);
+      
+    } catch (error) {
+      console.error('Error fetching wallet balances:', error);
+      toast.error('Failed to fetch wallet balances');
+    } finally {
+      setIsLoadingBalances(false);
+    }
+  };
+
   useEffect(() => {
     const fetchWallets = async () => {
       const token = localStorage.getItem('token');
@@ -117,14 +194,20 @@ export default function Dashboard() {
       setWalletState(prev => ({ ...prev, loading: true }));
       try {
         const response = await api.getWallets(token);
+        console.log('Fetched wallets:', response.wallets);
+        
         const wallets = response.wallets;
-
-        const walletTypes = wallets.reduce((acc, wallet) => {
+        const walletTypes = {};
+        
+        for (const wallet of wallets) {
           if (wallet.walletaddress) {
-            acc[wallet.walletaddress] = checkWalletType(wallet.walletaddress);
+            const typeInfo = checkWalletType(wallet.walletaddress);
+            if (typeInfo) {
+              walletTypes[wallet.walletaddress] = typeInfo;
+              console.log(`Detected wallet type for ${wallet.walletaddress}:`, typeInfo);
+            }
           }
-          return acc;
-        }, {});
+        }
 
         setWalletState({
           wallets,
@@ -132,12 +215,17 @@ export default function Dashboard() {
           loading: false,
           error: null
         });
+
+        await fetchWalletBalances(wallets);
+        
       } catch (error) {
+        console.error('Error in wallet fetching:', error);
         setWalletState(prev => ({
           ...prev,
           loading: false,
           error: error.message
         }));
+        toast.error('Failed to fetch wallets');
       }
     };
 
@@ -252,58 +340,52 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {walletState.wallets.map((wallet, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                          <Wallet className="text-blue-400" size={20} />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-medium">Wallet {index + 1}</h4>
-                          <p className="text-gray-400 text-sm truncate max-w-[200px]">
-                            {wallet.walletaddress || 'No address provided'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        {wallet.walletaddress && walletState.walletTypes[wallet.walletaddress] ? (
-                          <>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-400 text-sm">Type:</span>
-                              <span className="text-white font-medium">
-                                {walletState.walletTypes[wallet.walletaddress].type}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-400 text-sm">Format:</span>
-                              <span className="text-white font-medium">
-                                {walletState.walletTypes[wallet.walletaddress].format}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <p className="text-gray-400 text-sm">Unknown wallet type</p>
-                        )}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400 text-sm">Linked:</span>
-                          <span className="text-white font-medium">
-                            {new Date(wallet.linkedAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        {wallet.referenceNumber && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">Reference:</span>
-                            <span className="text-white font-medium">
-                              {wallet.referenceNumber}
-                            </span>
+                  {walletState.wallets.map((wallet, index) => {
+                    const walletType = walletState.walletTypes[wallet.walletaddress]?.type;
+                    const balance = walletBalances[wallet.walletaddress]?.balance || 0;
+                    
+                    return (
+                      <div 
+                        key={wallet.walletaddress || index} 
+                        className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                            <Wallet className="text-blue-400" size={20} />
                           </div>
-                        )}
+                          <div>
+                            <h4 className="text-white font-medium">{walletType || 'Unknown'} Wallet</h4>
+                            <p className="text-gray-400 text-sm truncate max-w-[200px]">
+                              {wallet.walletaddress || 'No address provided'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-400 text-sm">Balance:</span>
+                            {isLoadingBalances ? (
+                              <span className="text-white font-medium animate-pulse">Loading...</span>
+                            ) : (
+                              <span className="text-white font-medium">
+                                {balance.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 8
+                                })} {walletType}
+                              </span>
+                            )}
+                          </div>
+                          {walletBalances[wallet.walletaddress]?.lastUpdated && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-400 text-sm">Last Updated:</span>
+                              <span className="text-gray-400 text-sm">
+                                {new Date(walletBalances[wallet.walletaddress].lastUpdated).toLocaleTimeString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -390,6 +472,44 @@ export default function Dashboard() {
     { icon: <Wallet />, label: 'Wallets', id: 'wallets' },
   ];
 
+  const cryptoList = [
+    {
+      name: 'Bitcoin',
+      symbol: 'BTC',
+      id: 'bitcoin',
+      image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+      balance: cryptoBalances.bitcoin
+    },
+    {
+      name: 'Ripple',
+      symbol: 'XRP',
+      id: 'ripple',
+      image: 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
+      balance: cryptoBalances.ripple
+    },
+    {
+      name: 'Stellar',
+      symbol: 'XLM',
+      id: 'stellar',
+      image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png',
+      balance: cryptoBalances.stellar
+    },
+    {
+      name: 'Ethereum',
+      symbol: 'ETH',
+      id: 'ethereum',
+      image: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+      balance: cryptoBalances.ethereum
+    },
+    {
+      name: 'Shiba Inu',
+      symbol: 'SHIB',
+      id: 'shiba-inu',
+      image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png',
+      balance: cryptoBalances['shiba-inu']
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-900">
       <Toaster position="top-center" />
@@ -451,43 +571,7 @@ export default function Dashboard() {
             <div className="mt-8 bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-sm">
               <h3 className="text-xl font-semibold text-white mb-6">Market Overview</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {[
-                  {
-                    name: 'Bitcoin',
-                    symbol: 'BTC',
-                    id: 'bitcoin',
-                    image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
-                    balance: 0.0534
-                  },
-                  {
-                    name: 'Ripple',
-                    symbol: 'XRP',
-                    id: 'ripple',
-                    image: 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
-                    balance: 2145.67
-                  },
-                  {
-                    name: 'Stellar',
-                    symbol: 'XLM',
-                    id: 'stellar',
-                    image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png',
-                    balance: 1523.89
-                  },
-                  {
-                    name: 'Ethereum',
-                    symbol: 'ETH',
-                    id: 'ethereum',
-                    image: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
-                    balance: 1.245
-                  },
-                  {
-                    name: 'Shiba Inu',
-                    symbol: 'SHIB',
-                    id: 'shiba-inu',
-                    image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png',
-                    balance: 15000000
-                  }
-                ].map((crypto) => (
+                {cryptoList.map((crypto) => (
                   <div 
                     key={crypto.id} 
                     className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
@@ -567,36 +651,44 @@ export default function Dashboard() {
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {walletState.wallets.slice(0, 3).map((wallet, index) => (
-                  <div 
-                    key={index} 
-                    className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                        <Wallet className="text-blue-400" size={20} />
-                      </div>
-                      <div>
-                        <h4 className="text-white font-medium">Wallet {index + 1}</h4>
-                        <p className="text-gray-400 text-sm truncate max-w-[200px]">
-                          {wallet.walletaddress || 'No address provided'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      {wallet.walletaddress && walletState.walletTypes[wallet.walletaddress] ? (
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400 text-sm">Type:</span>
-                          <span className="text-white font-medium">
-                            {walletState.walletTypes[wallet.walletaddress].type}
-                          </span>
+                {walletState.wallets.slice(0, 3).map((wallet, index) => {
+                  const walletType = walletState.walletTypes[wallet.walletaddress]?.type;
+                  const balance = walletBalances[wallet.walletaddress]?.balance || 0;
+                  
+                  return (
+                    <div 
+                      key={wallet.walletaddress || index} 
+                      className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                          <Wallet className="text-blue-400" size={20} />
                         </div>
-                      ) : (
-                        <p className="text-gray-400 text-sm">Unknown wallet type</p>
-                      )}
+                        <div>
+                          <h4 className="text-white font-medium">{walletType || 'Unknown'} Wallet</h4>
+                          <p className="text-gray-400 text-sm truncate max-w-[200px]">
+                            {wallet.walletaddress || 'No address provided'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400 text-sm">Balance:</span>
+                          {isLoadingBalances ? (
+                            <span className="text-white font-medium animate-pulse">Loading...</span>
+                          ) : (
+                            <span className="text-white font-medium">
+                              {balance.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 8
+                              })} {walletType}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {walletState.wallets.length > 3 && (
                   <div 
                     className="bg-white/5 p-4 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center"

