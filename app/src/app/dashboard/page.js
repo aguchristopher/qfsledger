@@ -43,6 +43,7 @@ export default function Dashboard() {
   });
   const [walletBalances, setWalletBalances] = useState({});
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
+  const [totalCryptoBalance, setTotalCryptoBalance] = useState(0);
 
   const buyOptions = [
     {
@@ -79,7 +80,17 @@ export default function Dashboard() {
           api.getTransactions(token),
           api.getUser(token)
         ]);
-        setBalanceData(balanceResponse);
+        
+        const initialBalance = {
+          ...balanceResponse,
+          totalBalance: balanceResponse.totalBalance || 0
+        };
+        
+        if (totalCryptoBalance > 0) {
+          initialBalance.totalBalance += totalCryptoBalance;
+        }
+        
+        setBalanceData(initialBalance);
         setTransactions(transactionsResponse.transactions);
         setUsername(userResponse.username);
         setUserInfo({
@@ -116,7 +127,22 @@ export default function Dashboard() {
     fetchCryptoData();
     const interval = setInterval(fetchCryptoData, 60000); // Update every minute
     return () => clearInterval(interval);
-  }, [router]);
+  }, [router, totalCryptoBalance]);
+
+  useEffect(() => {
+    if (cryptoData && Object.keys(cryptoBalances).length > 0) {
+      const total = Object.entries(cryptoBalances).reduce((sum, [coinId, balance]) => {
+        const price = cryptoData[coinId]?.usd || 0;
+        return sum + (balance * price);
+      }, 0);
+      setTotalCryptoBalance(total);
+      
+      setBalanceData(prev => ({
+        ...prev,
+        totalBalance: (prev?.totalBalance || 0) + total
+      }));
+    }
+  }, [cryptoData, cryptoBalances]);
 
   const fetchWalletBalances = async (wallets) => {
     setIsLoadingBalances(true);
