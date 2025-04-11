@@ -9,9 +9,9 @@ export default function ReceiveScreen() {
   const [copied, setCopied] = useState(false);
 
   const cryptoOptions = [
-    { symbol: 'BTC', name: 'Bitcoin', address: '3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5' },
+    { symbol: 'BTC', name: 'Bitcoin', address: 'bc1qceukg999uk9az2ydngla0v7mxvn7ex33cmwq4m' },
     { symbol: 'ETH', name: 'Ethereum', address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e' },
-    { symbol: 'XRP', name: 'Ripple', address: 'rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh' },
+    { symbol: 'XRP', name: 'Ripple', address: 'rpJaC4ZcBTZat63DheN9yaHenSnNvy64qg' },
     { symbol: 'USDT', name: 'Tether', address: 'TYDzsYUEpvnYmQk4zGP9sWWcTEd2MiAtW6' },
     { symbol: 'BNB', name: 'Binance Coin', address: 'bnb1jxfh2g85q3v0tdq56fnevx6xcxtcnhtsmcu64m' },
   ];
