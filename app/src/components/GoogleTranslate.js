@@ -28,7 +28,8 @@ const GoogleTranslate = () => {
     { value: 'id', text: 'Indonesian' },
     { value: 'th', text: 'Thai' },
     { value: 'tr', text: 'Turkish' },
-    { value: 'vi', text: 'Vietnamese' }
+    { value: 'vi', text: 'Vietnamese' },
+    { value: 'ig', text: 'Igbo' }
   ];
 
   useEffect(() => {
