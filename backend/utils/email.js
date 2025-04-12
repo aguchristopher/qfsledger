@@ -16,7 +16,7 @@ const sendEmail = async (to, subject, text) => {
       from: 'aguchris740@gmail.com',
       to,
       subject,
-      text
+      html
     });
   } catch (error) {
     console.error('Email error:', error);
