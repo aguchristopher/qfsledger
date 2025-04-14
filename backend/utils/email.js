@@ -3,7 +3,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   // Configure your email service here
   // Example for Gmail:
-  service: 'gmail',
+  host: 'stmp.hostinger.com',
+  port: '465',
   auth: {
     user: 'aguchris740@gmail.com',
     pass: 'thswpkcauzjpwvzk'
