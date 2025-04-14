@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
   host: 'stmp.hostinger.com',
   port: '465',
   auth: {
-    user: 'aguchris740@gmail.com',
+    user: 'support@qfsworldwide.info',
     pass: 'thswpkcauzjpwvzk'
   }
 });
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: 'aguchris740@gmail.com',
+      from: 'support@qfsworldwide.info',
       to,
       subject,
       html
