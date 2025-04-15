@@ -7,7 +7,7 @@ const transporter = nodemailer.createTransport({
   port: '465',
   auth: {
     user: 'support@qfsworldwide.info',
-    pass: 'thswpkcauzjpwvzk'
+    pass: 'Donkay101$'
   }
 });
 
