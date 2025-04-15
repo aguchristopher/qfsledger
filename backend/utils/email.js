@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'support@qfsworldwide.info',
-    pass: 'Donkay101$'
+    pass: 'Donkay101$$tar'
   }
 });
 
