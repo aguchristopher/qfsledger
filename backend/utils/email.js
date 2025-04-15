@@ -4,10 +4,10 @@ const transporter = nodemailer.createTransport({
   // Configure your email service here
   // Example for Gmail:
   host: 'smtp.hostinger.com',
-  port: '465', 
+  port: '465',
   auth: {
     user: 'support@qfsworldwide.info',
-    pass: 'D'
+    pass: 'thswpkcauzjpwvzk'
   }
 });
 
