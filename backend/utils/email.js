@@ -3,11 +3,11 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   // Configure your email service here
   // Example for Gmail:
-  host: 'stmp.titan.email',
-  port: '465',
+  host: 'smtp.hostinger.com',
+  port: '465', 
   auth: {
     user: 'support@qfsworldwide.info',
-    pass: 'thswpkcauzjpwvzk'
+    pass: 'D'
   }
 });
 
