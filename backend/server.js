@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const portfolioRoutes = require('./routes/portfolio');
+const adminRoutes = require('./routes/admin');
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 
 // Database connection
