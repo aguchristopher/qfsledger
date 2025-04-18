@@ -3,6 +3,6 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const adminAuth = require('../middleware/adminAuth');
 
-router.get('/users', adminAuth, adminController.getAllUsers);
+router.get('/users', adminController.getAllUsers);
 
 module.exports = router;
