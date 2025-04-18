@@ -255,4 +255,30 @@ export const api = {
     if (!response.ok) throw new Error('Failed to update user balances');
     return response.json();
   },
+
+  async fundUser(userId, fundingData) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/fund`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(fundingData)
+    });
+    if (!response.ok) throw new Error('Failed to fund user');
+    return response.json();
+  },
+
+  async updateUserCoins(userId, coinData) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/update-coins`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(coinData)
+    });
+    if (!response.ok) throw new Error('Failed to update user coins');
+    return response.json();
+  },
 };

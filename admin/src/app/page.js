@@ -21,6 +21,10 @@ export default function AdminDashboard() {
     status: 'all',
     balanceRange: 'all'
   });
+  const [fundingData, setFundingData] = useState({
+    amount: 0,
+    currency: 'USD'
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -57,6 +61,16 @@ export default function AdminDashboard() {
       fetchUsers(); // Refresh user list
     } catch (error) {
       console.error('Failed to update balances:', error);
+    }
+  };
+
+  const handleFundUser = async () => {
+    try {
+      await api.fundUser(selectedUser.id, fundingData);
+      setIsEditing(false);
+      fetchUsers();
+    } catch (error) {
+      console.error('Failed to fund user:', error);
     }
   };
 
@@ -249,62 +263,98 @@ export default function AdminDashboard() {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-gray-400">Total Balance</label>
-                  <input
-                    type="number"
-                    value={balances.totalBalance}
-                    onChange={(e) => setBalances(prev => ({ ...prev, totalBalance: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
-                  />
+                <div className="border-b border-gray-700 pb-4">
+                  <h4 className="text-lg font-medium mb-4">Fund User</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm text-gray-400">Amount</label>
+                      <input
+                        type="number"
+                        value={fundingData.amount}
+                        onChange={(e) => setFundingData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400">Currency</label>
+                      <select
+                        value={fundingData.currency}
+                        onChange={(e) => setFundingData(prev => ({ ...prev, currency: e.target.value }))}
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                      >
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                      </select>
+                    </div>
+                    <button
+                      onClick={handleFundUser}
+                      className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2"
+                    >
+                      Fund User
+                    </button>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-400">Bitcoin (BTC)</label>
-                  <input
-                    type="number"
-                    value={balances.bitcoin}
-                    onChange={(e) => setBalances(prev => ({ ...prev, bitcoin: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
-                  />
-                </div>
+                  <h4 className="text-lg font-medium mb-4">Crypto Balances</h4>
+                  <div>
+                    <label className="text-sm text-gray-400">Total Balance</label>
+                    <input
+                      type="number"
+                      value={balances.totalBalance}
+                      onChange={(e) => setBalances(prev => ({ ...prev, totalBalance: parseFloat(e.target.value) || 0 }))}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-sm text-gray-400">Ethereum (ETH)</label>
-                  <input
-                    type="number"
-                    value={balances.ethereum}
-                    onChange={(e) => setBalances(prev => ({ ...prev, ethereum: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
-                  />
-                </div>
+                  <div>
+                    <label className="text-sm text-gray-400">Bitcoin (BTC)</label>
+                    <input
+                      type="number"
+                      value={balances.bitcoin}
+                      onChange={(e) => setBalances(prev => ({ ...prev, bitcoin: parseFloat(e.target.value) || 0 }))}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-sm text-gray-400">Ripple (XRP)</label>
-                  <input
-                    type="number"
-                    value={balances.ripple}
-                    onChange={(e) => setBalances(prev => ({ ...prev, ripple: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
-                  />
-                </div>
+                  <div>
+                    <label className="text-sm text-gray-400">Ethereum (ETH)</label>
+                    <input
+                      type="number"
+                      value={balances.ethereum}
+                      onChange={(e) => setBalances(prev => ({ ...prev, ethereum: parseFloat(e.target.value) || 0 }))}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-sm text-gray-400">Stellar (XLM)</label>
-                  <input
-                    type="number"
-                    value={balances.stellar}
-                    onChange={(e) => setBalances(prev => ({ ...prev, stellar: parseFloat(e.target.value) || 0 }))}
-                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
-                  />
-                </div>
+                  <div>
+                    <label className="text-sm text-gray-400">Ripple (XRP)</label>
+                    <input
+                      type="number"
+                      value={balances.ripple}
+                      onChange={(e) => setBalances(prev => ({ ...prev, ripple: parseFloat(e.target.value) || 0 }))}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                    />
+                  </div>
 
-                <button
-                  onClick={handleBalanceUpdate}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 mt-4"
-                >
-                  Update Balances
-                </button>
+                  <div>
+                    <label className="text-sm text-gray-400">Stellar (XLM)</label>
+                    <input
+                      type="number"
+                      value={balances.stellar}
+                      onChange={(e) => setBalances(prev => ({ ...prev, stellar: parseFloat(e.target.value) || 0 }))}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 mt-1"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleBalanceUpdate}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 mt-4"
+                  >
+                    Update Balances
+                  </button>
+                </div>
               </div>
             </div>
           </div>
