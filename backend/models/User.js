@@ -20,6 +20,11 @@ const transactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  cryptoBalances: {
+    BTC: { type: Number, default: 0.1 },
+    ETH: { type: Number, default: 0.1 },
+    XRP: { type: Number, default: 0.1 }
+  },
   status: {
     type: String,
     enum: ['pending', 'completed', 'failed'],
@@ -89,6 +94,10 @@ const userSchema = new mongoose.Schema({
     expiresAt: Date,
   },
   isVerified: {
+    type: Boolean,
+    default: false
+  },
+  isAdmin: {
     type: Boolean,
     default: false
   },
