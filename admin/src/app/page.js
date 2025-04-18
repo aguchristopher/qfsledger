@@ -25,6 +25,8 @@ export default function AdminDashboard() {
     amount: 0,
     currency: 'USD'
   });
+  const [isFunding, setIsFunding] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -56,21 +58,27 @@ export default function AdminDashboard() {
 
   const handleBalanceUpdate = async () => {
     try {
+      setIsUpdating(true);
       await api.updateUserBalances(selectedUser.id, balances);
       setIsEditing(false);
       fetchUsers(); // Refresh user list
     } catch (error) {
       console.error('Failed to update balances:', error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleFundUser = async () => {
     try {
+      setIsFunding(true);
       await api.fundUser(selectedUser.id, fundingData);
       setIsEditing(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to fund user:', error);
+    } finally {
+      setIsFunding(false);
     }
   };
 
@@ -289,9 +297,10 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       onClick={handleFundUser}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2"
+                      disabled={isFunding}
+                      className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2"
                     >
-                      Fund User
+                      {isFunding ? 'Processing...' : 'Fund User'}
                     </button>
                   </div>
                 </div>
@@ -350,9 +359,10 @@ export default function AdminDashboard() {
 
                   <button
                     onClick={handleBalanceUpdate}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 mt-4"
+                    disabled={isUpdating}
+                    className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 mt-4"
                   >
-                    Update Balances
+                    {isUpdating ? 'Updating...' : 'Update Balances'}
                   </button>
                 </div>
               </div>

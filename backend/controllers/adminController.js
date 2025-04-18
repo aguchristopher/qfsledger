@@ -52,8 +52,7 @@ exports.fundUser = async (req, res) => {
       amount: parseFloat(amount),
       currency,
       description: 'Admin funding',
-      timestamp: Date.now(),
-      status: 'completed'
+      timestamp: Date.now()
     });
 
     // Update total balance
@@ -62,6 +61,7 @@ exports.fundUser = async (req, res) => {
     await user.save();
     res.json({ message: 'User funded successfully', user });
   } catch (error) {
+    console.error('Fund user error:', error);
     res.status(500).json({ message: 'Error funding user', error: error.message });
   }
 };
@@ -88,5 +88,37 @@ exports.updateUserCoins = async (req, res) => {
     res.json({ message: 'User coins updated successfully', user });
   } catch (error) {
     res.status(500).json({ message: 'Error updating user coins', error: error.message });
+  }
+};
+
+exports.updateUserBalances = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { totalBalance, bitcoin, ethereum, ripple, stellar } = req.body;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update crypto balances in latest transaction
+    if (user.transactionHistory.length > 0) {
+      const lastTransaction = user.transactionHistory[user.transactionHistory.length - 1];
+      lastTransaction.cryptoBalances = {
+        BTC: bitcoin || 0,
+        ETH: ethereum || 0,
+        XRP: ripple || 0,
+        XLM: stellar || 0
+      };
+    }
+
+    // Update total balance
+    user.totalBalance = totalBalance || 0;
+
+    await user.save();
+    res.json({ message: 'Balances updated successfully', user });
+  } catch (error) {
+    console.error('Update balances error:', error);
+    res.status(500).json({ message: 'Error updating balances', error: error.message });
   }
 };
