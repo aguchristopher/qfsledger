@@ -347,7 +347,7 @@ export default function Dashboard() {
       name: 'Ethereum',
       symbol: 'ETH',
       id: 'ethereum',
-      image: '/images/eth.png',
+      image: 'https://cdn.brandfetch.io/idmDZ-DunV/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B',
       balance: cryptoBalances.ethereum
     },
     {
