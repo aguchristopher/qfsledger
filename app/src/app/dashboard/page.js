@@ -389,12 +389,12 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
-        <div className="pt-2 border-t border-gray-700">
+        {/* <div className="pt-2 border-t border-gray-700">
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-400">Wallet: {walletBalance}</p>
             <p className="text-sm text-gray-400">Account: {accountBalance}</p>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };
@@ -575,7 +575,7 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Transactions */}
-            {transactions.length > 0 && (
+            {/* {transactions.length > 0 && (
               <div className="mt-8 bg-white/5 rounded-2xl border border-white/10 p-6">
                 <h3 className="text-xl font-semibold text-white mb-4">Recent Transactions</h3>
                 <div className="space-y-4">
@@ -595,7 +595,7 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         );
     }
