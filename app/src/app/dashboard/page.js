@@ -44,6 +44,12 @@ export default function Dashboard() {
   const [walletBalances, setWalletBalances] = useState({});
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
   const [totalCryptoBalance, setTotalCryptoBalance] = useState(0);
+  const [accountCryptoBalances, setAccountCryptoBalances] = useState({
+    BTC: 0,
+    ETH: 0,
+    XRP: 0,
+    XLM: 0
+  });
 
   const buyOptions = [
     {
@@ -75,22 +81,28 @@ export default function Dashboard() {
 
     const fetchUserData = async () => {
       try {
-        const [balanceResponse, transactionsResponse, userResponse] = await Promise.all([
+        const [balanceResponse, transactionsResponse, userResponse, portfolioResponse] = await Promise.all([
           api.getBalance(token),
           api.getTransactions(token),
-          api.getUser(token)
+          api.getUser(token),
+          api.getPortfolio(token)
         ]);
         
-        const initialBalance = {
-          ...balanceResponse,
-          totalBalance: balanceResponse.totalBalance || 0
+        // Update account crypto balances
+        setAccountCryptoBalances(portfolioResponse.accountCryptoBalances);
+        
+        // Combine account and wallet balances for total crypto balance
+        const combinedCryptoBalances = {
+          bitcoin: (portfolioResponse.accountCryptoBalances.BTC || 0) + (cryptoBalances.bitcoin || 0),
+          ethereum: (portfolioResponse.accountCryptoBalances.ETH || 0) + (cryptoBalances.ethereum || 0),
+          ripple: (portfolioResponse.accountCryptoBalances.XRP || 0) + (cryptoBalances.ripple || 0),
+          stellar: (portfolioResponse.accountCryptoBalances.XLM || 0) + (cryptoBalances.stellar || 0)
         };
         
-        if (totalCryptoBalance > 0) {
-          initialBalance.totalBalance += totalCryptoBalance;
-        }
+        setCryptoBalances(combinedCryptoBalances);
         
-        setBalanceData(initialBalance);
+        // Update other data
+        setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
         setUsername(userResponse.username);
         setUserInfo({
@@ -103,9 +115,6 @@ export default function Dashboard() {
         });
       } catch (error) {
         toast.error('Failed to fetch user data');
-        if (error.message === 'Invalid token') {
-          localStorage.removeItem('token');
-        }
       }
     };
 
@@ -285,6 +294,37 @@ export default function Dashboard() {
 
   const handleBack = () => {
     setSelectedTab('overview');
+  };
+
+  const renderCryptoBalance = (crypto) => {
+    const accountBalance = accountCryptoBalances[crypto.symbol] || 0;
+    const walletBalance = cryptoBalances[crypto.id] || 0;
+    const totalBalance = accountBalance + walletBalance;
+
+    return (
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <p className="text-sm text-gray-400">Total Balance</p>
+            <p className="text-lg font-semibold text-white">
+              {totalBalance.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 8
+              })} {crypto.symbol}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-400">Account Balance</p>
+            <p className="text-sm text-gray-400">
+              {accountBalance.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 8
+              })} {crypto.symbol}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderScreen = () => {
@@ -614,43 +654,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     {cryptoData && cryptoData[crypto.id] ? (
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <div className="text-left">
-                            <p className="text-sm text-gray-400">Balance</p>
-                            <p className="text-lg font-semibold text-white">
-                              {crypto.balance.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 8
-                              })} {crypto.symbol}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-400">Price</p>
-                            <p className="text-lg font-bold text-white">
-                              ${cryptoData[crypto.id].usd.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center mt-2">
-                          <span className={`text-sm ${
-                            cryptoData[crypto.id].usd_24h_change >= 0 
-                              ? 'text-green-400' 
-                              : 'text-red-400'
-                          }`}>
-                            24h: {cryptoData[crypto.id].high_24h}%
-                          </span>
-                          <span className="text-sm text-gray-400">
-                            ≈ ${(crypto.balance * cryptoData[crypto.id].usd).toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            })}
-                          </span>
-                        </div>
-                      </div>
+                      renderCryptoBalance(crypto)
                     ) : (
                       <div className="animate-pulse">
                         <div className="h-8 bg-white/5 rounded mb-2"></div>

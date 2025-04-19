@@ -13,6 +13,14 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
+    // Initialize crypto balances
+    const initialBalances = [
+      { currency: 'BTC', amount: 0 },
+      { currency: 'ETH', amount: 0 },
+      { currency: 'XRP', amount: 0 },
+      { currency: 'XLM', amount: 0 }
+    ];
+
     // Generate OTP
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -29,7 +37,9 @@ exports.signup = async (req, res) => {
       lastName,
       username,
       country,
-      phoneNumber
+      phoneNumber,
+      balances: initialBalances,  // Add initial balances
+      totalBalance: 0
     });
 
     // Send OTP via email

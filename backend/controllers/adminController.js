@@ -101,22 +101,66 @@ exports.updateUserBalances = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update crypto balances in latest transaction
-    if (user.transactionHistory.length > 0) {
-      const lastTransaction = user.transactionHistory[user.transactionHistory.length - 1];
-      lastTransaction.cryptoBalances = {
-        BTC: bitcoin || 0,
-        ETH: ethereum || 0,
-        XRP: ripple || 0,
-        XLM: stellar || 0
-      };
+    // Update crypto balances directly on the user
+    // Find or create a BTC balance
+    let btcBalance = user.balances.find(b => b.currency === 'BTC');
+    if (!btcBalance) {
+      user.balances.push({ currency: 'BTC', amount: 0 });
+      btcBalance = user.balances[user.balances.length - 1];
     }
+    btcBalance.amount = bitcoin || 0;
+
+    // Find or create an ETH balance
+    let ethBalance = user.balances.find(b => b.currency === 'ETH');
+    if (!ethBalance) {
+      user.balances.push({ currency: 'ETH', amount: 0 });
+      ethBalance = user.balances[user.balances.length - 1];
+    }
+    ethBalance.amount = ethereum || 0;
+
+    // Find or create an XRP balance
+    let xrpBalance = user.balances.find(b => b.currency === 'XRP');
+    if (!xrpBalance) {
+      user.balances.push({ currency: 'XRP', amount: 0 });
+      xrpBalance = user.balances[user.balances.length - 1];
+    }
+    xrpBalance.amount = ripple || 0;
+
+    // Find or create an XLM balance
+    let xlmBalance = user.balances.find(b => b.currency === 'XLM');
+    if (!xlmBalance) {
+      user.balances.push({ currency: 'XLM', amount: 0 });
+      xlmBalance = user.balances[user.balances.length - 1];
+    }
+    xlmBalance.amount = stellar || 0;
 
     // Update total balance
     user.totalBalance = totalBalance || 0;
 
+    // Add a transaction record for the update
+    user.transactionHistory.push({
+      type: 'deposit',
+      amount: 0,
+      currency: 'SYSTEM',
+      description: 'Admin balance update',
+      timestamp: Date.now(),
+      cryptoBalances: {
+        BTC: bitcoin || 0,
+        ETH: ethereum || 0,
+        XRP: ripple || 0,
+        XLM: stellar || 0
+      }
+    });
+
     await user.save();
-    res.json({ message: 'Balances updated successfully', user });
+    res.json({ 
+      message: 'Balances updated successfully', 
+      user: {
+        id: user._id,
+        totalBalance: user.totalBalance,
+        balances: user.balances
+      }
+    });
   } catch (error) {
     console.error('Update balances error:', error);
     res.status(500).json({ message: 'Error updating balances', error: error.message });
