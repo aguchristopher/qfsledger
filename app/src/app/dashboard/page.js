@@ -548,7 +548,7 @@ export default function Dashboard() {
                 <h3 className="text-xl font-semibold text-white">Total Balance</h3>
                 <div className="text-right">
                   <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg block mb-1">
-                    ${balanceData?.totalBalance?.toFixed(2) || '0.00'}
+                    ${balanceData?.totalBalance?.toFixed(2) + balanceData.xrpBalance.total.toFixed(2)|| '0.00'}
                   </span>
                   {balanceData?.xrpBalance && (
                     <span className="text-blue-400 text-xs bg-blue-400/10 px-2 py-1 rounded-lg">
