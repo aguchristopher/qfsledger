@@ -326,35 +326,35 @@ export default function Dashboard() {
       name: 'Bitcoin',
       symbol: 'BTC',
       id: 'bitcoin',
-      image: 'https://cdn.brandfetch.io/idkbqeYUg6/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+      image: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg',
       balance: cryptoBalances.bitcoin
     },
     {
       name: 'Ripple',
       symbol: 'XRP',
       id: 'ripple',
-      image: '/images/xrp.png',
+      image: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/xrp.svg',
       balance: cryptoBalances.ripple
     },
     {
       name: 'Stellar',
       symbol: 'XLM',
       id: 'stellar',
-      image: '/images/xlm.png',
+      image: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/xlm.svg',
       balance: cryptoBalances.stellar
     },
     {
       name: 'Ethereum',
       symbol: 'ETH',
       id: 'ethereum',
-      image: 'https://cdn.brandfetch.io/idmDZ-DunV/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B',
+      image: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg',
       balance: cryptoBalances.ethereum
     },
     {
       name: 'Shiba Inu',
       symbol: 'SHIB',
       id: 'shiba-inu',
-      image: '/images/shib.png',
+      image: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/shib.svg',
       balance: cryptoBalances['shiba-inu']
     }
   ];
