@@ -72,6 +72,20 @@ export default function Dashboard() {
     }
   ];
 
+  const calculateTotalBalance = (accountBalances, walletBalances, cryptoPrices) => {
+    const totalXRP = parseFloat(accountBalances.XRP || 0) + parseFloat(walletBalances.ripple || 0);
+    const xrpUsdValue = totalXRP * (cryptoPrices?.ripple?.usd || 0);
+    
+    const otherCryptoValue = Object.entries(cryptoBalances)
+      .filter(([key]) => key !== 'ripple') // Exclude XRP as we calculated it separately
+      .reduce((sum, [coinId, balance]) => {
+        const price = cryptoPrices[coinId]?.usd || 0;
+        return sum + (balance * price);
+      }, 0);
+
+    return xrpUsdValue + otherCryptoValue;
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -143,17 +157,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (cryptoData && Object.keys(cryptoBalances).length > 0) {
-      const total = Object.entries(cryptoBalances).reduce((sum, [coinId, balance]) => {
-        const price = cryptoData[coinId]?.usd || 0;
-        return sum + (balance * price);
-      }, 0);
+      const totalCryptoValue = calculateTotalBalance(accountCryptoBalances, cryptoBalances, cryptoData);
       
       // Only update if the difference is significant (>0.01)
-      if (Math.abs(total - totalCryptoBalance) > 0.01) {
-        setTotalCryptoBalance(total);
+      if (Math.abs(totalCryptoValue - totalCryptoBalance) > 0.01) {
+        setTotalCryptoBalance(totalCryptoValue);
         
         setBalanceData(prev => {
-          const newTotal = (prev?.totalBalance || 0) + total;
+          const newTotal = (prev?.totalBalance || 0) + totalCryptoValue;
           // Only update if difference is significant
           if (Math.abs(newTotal - (prev?.totalBalance || 0)) > 0.01) {
             return {
@@ -165,7 +176,7 @@ export default function Dashboard() {
         });
       }
     }
-  }, [cryptoData, cryptoBalances]);
+  }, [cryptoData, cryptoBalances, accountCryptoBalances]);
 
   const fetchWalletBalances = async (wallets) => {
     setIsLoadingBalances(true);
@@ -311,11 +322,11 @@ export default function Dashboard() {
   };
 
   const renderCryptoBalance = (crypto) => {
-    const accountBalance = parseFloat(accountCryptoBalances[crypto.symbol] || 0);
-    const walletBalance = parseFloat(cryptoBalances[crypto.id] || 0);
-    const totalBalance = accountBalance + walletBalance;
-    const price = cryptoData[crypto.id]?.usd || 0;
-    const usdValue = totalBalance * price;
+    const accountBalance = parseFloat(accountCryptoBalances[crypto.symbol] || 0).toFixed(8);
+    const walletBalance = parseFloat(cryptoBalances[crypto.id] || 0).toFixed(8);
+    const totalBalance = (parseFloat(accountBalance) + parseFloat(walletBalance)).toFixed(8);
+    const price = parseFloat(cryptoData[crypto.id]?.usd || 0);
+    const usdValue = (parseFloat(totalBalance) * price).toFixed(2);
 
     return (
       <div className="space-y-2">
@@ -323,18 +334,18 @@ export default function Dashboard() {
           <div className="text-left">
             <p className="text-sm text-gray-400">Total Balance</p>
             <p className="text-lg font-semibold text-white">
-              {totalBalance.toFixed(8)} {crypto.symbol}
+              {totalBalance} {crypto.symbol}
             </p>
             <p className="text-sm text-gray-400">
-              ≈ ${usdValue.toFixed(2)}
+              ≈ ${usdValue}
             </p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-400">Wallet Balance</p>
             <p className="text-sm text-white">
-              {walletBalance.toFixed(8)} {crypto.symbol}
+              {walletBalance} {crypto.symbol}
             </p>
-            <p className="text-sm text-gray-400">Account: {accountBalance.toFixed(8)}</p>
+            <p className="text-sm text-gray-400">Account: {accountBalance}</p>
           </div>
         </div>
       </div>
