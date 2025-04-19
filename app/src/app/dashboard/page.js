@@ -321,16 +321,55 @@ export default function Dashboard() {
     setSelectedTab('overview');
   };
 
+  const cryptoList = [
+    {
+      name: 'Bitcoin',
+      symbol: 'BTC',
+      id: 'bitcoin',
+      image: '/images/btc.png',
+      balance: cryptoBalances.bitcoin
+    },
+    {
+      name: 'Ripple',
+      symbol: 'XRP',
+      id: 'ripple',
+      image: '/images/xrp.png',
+      balance: cryptoBalances.ripple
+    },
+    {
+      name: 'Stellar',
+      symbol: 'XLM',
+      id: 'stellar',
+      image: '/images/xlm.png',
+      balance: cryptoBalances.stellar
+    },
+    {
+      name: 'Ethereum',
+      symbol: 'ETH',
+      id: 'ethereum',
+      image: '/images/eth.png',
+      balance: cryptoBalances.ethereum
+    },
+    {
+      name: 'Shiba Inu',
+      symbol: 'SHIB',
+      id: 'shiba-inu',
+      image: '/images/shib.png',
+      balance: cryptoBalances['shiba-inu']
+    }
+  ];
+
   const renderCryptoBalance = (crypto) => {
     const accountBalance = parseFloat(accountCryptoBalances[crypto.symbol] || 0).toFixed(8);
     const walletBalance = parseFloat(cryptoBalances[crypto.id] || 0).toFixed(8);
     const totalBalance = (parseFloat(accountBalance) + parseFloat(walletBalance)).toFixed(8);
     const price = parseFloat(cryptoData[crypto.id]?.usd || 0);
     const usdValue = (parseFloat(totalBalance) * price).toFixed(2);
+    const priceChangePercent = cryptoData[crypto.id]?.usd_24h_change?.toFixed(2) || 0;
 
     return (
       <div className="space-y-2">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-2">
           <div className="text-left">
             <p className="text-sm text-gray-400">Total Balance</p>
             <p className="text-lg font-semibold text-white">
@@ -341,10 +380,18 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-400">Wallet Balance</p>
-            <p className="text-sm text-white">
-              {walletBalance} {crypto.symbol}
+            <p className="text-sm text-gray-400">Current Price</p>
+            <p className="text-sm font-medium text-white">
+              ${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
+            <p className={`text-sm ${priceChangePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {priceChangePercent >= 0 ? '+' : ''}{priceChangePercent}%
+            </p>
+          </div>
+        </div>
+        <div className="pt-2 border-t border-gray-700">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-400">Wallet: {walletBalance}</p>
             <p className="text-sm text-gray-400">Account: {accountBalance}</p>
           </div>
         </div>
@@ -561,44 +608,6 @@ export default function Dashboard() {
     { icon: <RefreshCw />, label: 'Buy', id: 'buy' },
     { icon: <History />, label: 'History', id: 'history' },
     { icon: <Wallet />, label: 'Wallets', id: 'wallets' },
-  ];
-
-  const cryptoList = [
-    {
-      name: 'Bitcoin',
-      symbol: 'BTC',
-      id: 'bitcoin',
-      image: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
-      balance: cryptoBalances.bitcoin
-    },
-    {
-      name: 'Ripple',
-      symbol: 'XRP',
-      id: 'ripple',
-      image: 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
-      balance: cryptoBalances.ripple
-    },
-    {
-      name: 'Stellar',
-      symbol: 'XLM',
-      id: 'stellar',
-      image: 'https://cryptologos.cc/logos/stellar-xlm-logo.png',
-      balance: cryptoBalances.stellar
-    },
-    {
-      name: 'Ethereum',
-      symbol: 'ETH',
-      id: 'ethereum',
-      image: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
-      balance: cryptoBalances.ethereum
-    },
-    {
-      name: 'Shiba Inu',
-      symbol: 'SHIB',
-      id: 'shiba-inu',
-      image: 'https://cryptologos.cc/logos/shiba-inu-shib-logo.png',
-      balance: cryptoBalances['shiba-inu']
-    }
   ];
 
   return (
