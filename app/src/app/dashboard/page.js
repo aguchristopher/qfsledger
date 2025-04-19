@@ -157,24 +157,35 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (cryptoData && Object.keys(cryptoBalances).length > 0) {
-      const totalCryptoValue = calculateTotalBalance(accountCryptoBalances, cryptoBalances, cryptoData);
-      
-      // Only update if the difference is significant (>0.01)
-      if (Math.abs(totalCryptoValue - totalCryptoBalance) > 0.01) {
-        setTotalCryptoBalance(totalCryptoValue);
-        
-        setBalanceData(prev => {
-          const newTotal = (prev?.totalBalance || 0) + totalCryptoValue;
-          // Only update if difference is significant
-          if (Math.abs(newTotal - (prev?.totalBalance || 0)) > 0.01) {
-            return {
-              ...prev,
-              totalBalance: newTotal
-            };
-          }
-          return prev;
-        });
-      }
+      const xrpAccountBalance = parseFloat(accountCryptoBalances.XRP || 0);
+      const xrpWalletBalance = parseFloat(cryptoBalances.ripple || 0);
+      const totalXRP = xrpAccountBalance + xrpWalletBalance;
+      const xrpUsdValue = totalXRP * (cryptoData.ripple?.usd || 0);
+
+      const otherCryptoValue = Object.entries(cryptoBalances)
+        .filter(([key]) => key !== 'ripple')
+        .reduce((sum, [coinId, balance]) => {
+          const price = cryptoData[coinId]?.usd || 0;
+          return sum + (balance * price);
+        }, 0);
+
+      const totalCryptoValue = xrpUsdValue + otherCryptoValue;
+      setTotalCryptoBalance(totalCryptoValue);
+
+      // Update total balance including XRP and other crypto
+      const baseBalance = parseFloat(balanceData?.totalBalance || 0);
+      const newTotal = baseBalance + totalCryptoValue;
+
+      setBalanceData(prev => ({
+        ...prev,
+        totalBalance: newTotal,
+        xrpBalance: {
+          total: totalXRP,
+          account: xrpAccountBalance,
+          wallet: xrpWalletBalance,
+          usdValue: xrpUsdValue
+        }
+      }));
     }
   }, [cryptoData, cryptoBalances, accountCryptoBalances]);
 
@@ -535,9 +546,16 @@ export default function Dashboard() {
             <div className="bg-gray-800/50 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-semibold text-white">Total Balance</h3>
-                <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg">
-                  {balanceData?.totalBalance ? `$${balanceData.totalBalance.toFixed(2)}` : 'Active'}
-                </span>
+                <div className="text-right">
+                  <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg block mb-1">
+                    ${balanceData?.totalBalance?.toFixed(2) || '0.00'}
+                  </span>
+                  {balanceData?.xrpBalance && (
+                    <span className="text-blue-400 text-xs bg-blue-400/10 px-2 py-1 rounded-lg">
+                      XRP: {balanceData.xrpBalance.total.toFixed(2)} (${balanceData.xrpBalance.usdValue.toFixed(2)})
+                    </span>
+                  )}
+                </div>
               </div>
               <p className="text-4xl font-bold text-white mb-4">
                 ${balanceData?.totalBalance?.toLocaleString() || '0.00'}
