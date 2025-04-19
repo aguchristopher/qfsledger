@@ -548,17 +548,17 @@ export default function Dashboard() {
                 <h3 className="text-xl font-semibold text-white">Total Balance</h3>
                 <div className="text-right">
                   <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg block mb-1">
-                    ${balanceData?.totalBalance + balanceData.xrpBalance.total || '0.00'}
+                    ${((balanceData?.totalBalance || 0) + (balanceData?.xrpBalance?.total || 0)).toFixed(2)}
                   </span>
-                  {balanceData?.xrpBalance && (
+                  {balanceData?.xrpBalance?.total > 0 && (
                     <span className="text-blue-400 text-xs bg-blue-400/10 px-2 py-1 rounded-lg">
-                      XRP: {balanceData.xrpBalance.total.toFixed(2)} (${balanceData.xrpBalance.usdValue.toFixed(2)})
+                      XRP: {balanceData.xrpBalance.total.toFixed(2)} (${balanceData.xrpBalance.usdValue?.toFixed(2) || '0.00'})
                     </span>
                   )}
                 </div>
               </div>
               <p className="text-4xl font-bold text-white mb-4">
-                ${balanceData?.totalBalance?.toLocaleString() || '0.00'}
+                ${((balanceData?.totalBalance || 0) + (balanceData?.xrpBalance?.total || 0)).toLocaleString()}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button 
