@@ -81,28 +81,49 @@ export default function Dashboard() {
 
     const fetchUserData = async () => {
       try {
-        const [balanceResponse, transactionsResponse, userResponse, portfolioResponse] = await Promise.all([
+        const [balanceResponse, transactionsResponse, userResponse] = await Promise.all([
           api.getBalance(token),
           api.getTransactions(token),
-          api.getUser(token),
-          api.getPortfolio(token)
+          api.getUser(token)
         ]);
         
-        // Update account crypto balances
-        setAccountCryptoBalances(portfolioResponse.accountCryptoBalances);
-        
-        // Combine account and wallet balances for total crypto balance
-        const combinedCryptoBalances = {
-          bitcoin: (portfolioResponse.accountCryptoBalances.BTC || 0) + (cryptoBalances.bitcoin || 0),
-          ethereum: (portfolioResponse.accountCryptoBalances.ETH || 0) + (cryptoBalances.ethereum || 0),
-          ripple: (portfolioResponse.accountCryptoBalances.XRP || 0) + (cryptoBalances.ripple || 0),
-          stellar: (portfolioResponse.accountCryptoBalances.XLM || 0) + (cryptoBalances.stellar || 0)
+        // Update account crypto balances from balance response
+        const accountBalances = {
+          BTC: balanceResponse.balances.find(b => b.currency === 'BTC')?.amount || 0,
+          ETH: balanceResponse.balances.find(b => b.currency === 'ETH')?.amount || 0,
+          XRP: balanceResponse.balances.find(b => b.currency === 'XRP')?.amount || 0,
+          XLM: balanceResponse.balances.find(b => b.currency === 'XLM')?.amount || 0
         };
         
-        setCryptoBalances(combinedCryptoBalances);
+        setAccountCryptoBalances(accountBalances);
         
+        // Combine account and wallet balances
+        const combinedBalances = {
+          bitcoin: accountBalances.BTC + (cryptoBalances.bitcoin || 0),
+          ethereum: accountBalances.ETH + (cryptoBalances.ethereum || 0),
+          ripple: accountBalances.XRP + (cryptoBalances.ripple || 0),
+          stellar: accountBalances.XLM + (cryptoBalances.stellar || 0),
+          'shiba-inu': cryptoBalances['shiba-inu'] || 0
+        };
+        
+        setCryptoBalances(combinedBalances);
+
+        // Calculate total balance including crypto
+        if (cryptoData) {
+          const totalCryptoValue = Object.entries(combinedBalances).reduce((sum, [coinId, balance]) => {
+            const price = cryptoData[coinId]?.usd || 0;
+            return sum + (balance * price);
+          }, 0);
+
+          setBalanceData({
+            ...balanceResponse,
+            totalBalance: balanceResponse.totalBalance + totalCryptoValue
+          });
+        } else {
+          setBalanceData(balanceResponse);
+        }
+
         // Update other data
-        setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
         setUsername(userResponse.username);
         setUserInfo({
@@ -136,7 +157,7 @@ export default function Dashboard() {
     fetchCryptoData();
     const interval = setInterval(fetchCryptoData, 60000); // Update every minute
     return () => clearInterval(interval);
-  }, [router, totalCryptoBalance]);
+  }, [router, cryptoData]);
 
   useEffect(() => {
     if (cryptoData && Object.keys(cryptoBalances).length > 0) {
@@ -300,6 +321,7 @@ export default function Dashboard() {
     const accountBalance = accountCryptoBalances[crypto.symbol] || 0;
     const walletBalance = cryptoBalances[crypto.id] || 0;
     const totalBalance = accountBalance + walletBalance;
+    const usdValue = (totalBalance * (cryptoData[crypto.id]?.usd || 0));
 
     return (
       <div className="space-y-2">
@@ -312,15 +334,22 @@ export default function Dashboard() {
                 maximumFractionDigits: 8
               })} {crypto.symbol}
             </p>
+            <p className="text-sm text-gray-400">
+              ≈ ${usdValue.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-400">Account Balance</p>
-            <p className="text-sm text-gray-400">
-              {accountBalance.toLocaleString(undefined, {
+            <p className="text-sm text-gray-400">Wallet Balance</p>
+            <p className="text-sm text-white">
+              {walletBalance.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 8
               })} {crypto.symbol}
             </p>
+            <p className="text-sm text-gray-400">Account: {accountBalance.toLocaleString()}</p>
           </div>
         </div>
       </div>
