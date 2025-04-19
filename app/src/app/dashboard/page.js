@@ -89,51 +89,33 @@ export default function Dashboard() {
         
         // Update account crypto balances from balance response
         const accountBalances = {
-          BTC: balanceResponse.balances.find(b => b.currency === 'BTC')?.amount || 0,
-          ETH: balanceResponse.balances.find(b => b.currency === 'ETH')?.amount || 0,
-          XRP: balanceResponse.balances.find(b => b.currency === 'XRP')?.amount || 0,
-          XLM: balanceResponse.balances.find(b => b.currency === 'XLM')?.amount || 0
+          BTC: parseFloat(balanceResponse.balances.find(b => b.currency === 'BTC')?.amount || 0),
+          ETH: parseFloat(balanceResponse.balances.find(b => b.currency === 'ETH')?.amount || 0),
+          XRP: parseFloat(balanceResponse.balances.find(b => b.currency === 'XRP')?.amount || 0),
+          XLM: parseFloat(balanceResponse.balances.find(b => b.currency === 'XLM')?.amount || 0)
         };
         
-        setAccountCryptoBalances(accountBalances);
+        setAccountCryptoBalances(prev => {
+          // Only update if values have actually changed
+          return JSON.stringify(prev) !== JSON.stringify(accountBalances) ? accountBalances : prev;
+        });
         
-        // Combine account and wallet balances
-        const combinedBalances = {
-          bitcoin: accountBalances.BTC + (cryptoBalances.bitcoin || 0),
-          ethereum: accountBalances.ETH + (cryptoBalances.ethereum || 0),
-          ripple: accountBalances.XRP + (cryptoBalances.ripple || 0),
-          stellar: accountBalances.XLM + (cryptoBalances.stellar || 0),
-          'shiba-inu': cryptoBalances['shiba-inu'] || 0
-        };
-        
-        setCryptoBalances(combinedBalances);
-
-        // Calculate total balance including crypto
-        if (cryptoData) {
-          const totalCryptoValue = Object.entries(combinedBalances).reduce((sum, [coinId, balance]) => {
-            const price = cryptoData[coinId]?.usd || 0;
-            return sum + (balance * price);
-          }, 0);
-
-          setBalanceData({
-            ...balanceResponse,
-            totalBalance: balanceResponse.totalBalance + totalCryptoValue
-          });
-        } else {
-          setBalanceData(balanceResponse);
-        }
-
         // Update other data
+        setBalanceData(prev => {
+          // Only update if the balance has actually changed
+          return prev?.totalBalance !== balanceResponse.totalBalance ? balanceResponse : prev;
+        });
+        
         setTransactions(transactionsResponse.transactions);
-        setUsername(userResponse.username);
-        setUserInfo({
+        setUserInfo(prev => ({
+          ...prev,
           firstName: userResponse.firstName,
           lastName: userResponse.lastName,
           email: userResponse.email,
           phoneNumber: userResponse.phoneNumber,
           country: userResponse.country,
           isVerified: userResponse.isVerified
-        });
+        }));
       } catch (error) {
         toast.error('Failed to fetch user data');
       }
@@ -165,12 +147,23 @@ export default function Dashboard() {
         const price = cryptoData[coinId]?.usd || 0;
         return sum + (balance * price);
       }, 0);
-      setTotalCryptoBalance(total);
       
-      setBalanceData(prev => ({
-        ...prev,
-        totalBalance: (prev?.totalBalance || 0) + total
-      }));
+      // Only update if the difference is significant (>0.01)
+      if (Math.abs(total - totalCryptoBalance) > 0.01) {
+        setTotalCryptoBalance(total);
+        
+        setBalanceData(prev => {
+          const newTotal = (prev?.totalBalance || 0) + total;
+          // Only update if difference is significant
+          if (Math.abs(newTotal - (prev?.totalBalance || 0)) > 0.01) {
+            return {
+              ...prev,
+              totalBalance: newTotal
+            };
+          }
+          return prev;
+        });
+      }
     }
   }, [cryptoData, cryptoBalances]);
 
@@ -318,10 +311,11 @@ export default function Dashboard() {
   };
 
   const renderCryptoBalance = (crypto) => {
-    const accountBalance = accountCryptoBalances[crypto.symbol] || 0;
-    const walletBalance = cryptoBalances[crypto.id] || 0;
+    const accountBalance = parseFloat(accountCryptoBalances[crypto.symbol] || 0);
+    const walletBalance = parseFloat(cryptoBalances[crypto.id] || 0);
     const totalBalance = accountBalance + walletBalance;
-    const usdValue = (totalBalance * (cryptoData[crypto.id]?.usd || 0));
+    const price = cryptoData[crypto.id]?.usd || 0;
+    const usdValue = totalBalance * price;
 
     return (
       <div className="space-y-2">
@@ -329,27 +323,18 @@ export default function Dashboard() {
           <div className="text-left">
             <p className="text-sm text-gray-400">Total Balance</p>
             <p className="text-lg font-semibold text-white">
-              {totalBalance.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 8
-              })} {crypto.symbol}
+              {totalBalance.toFixed(8)} {crypto.symbol}
             </p>
             <p className="text-sm text-gray-400">
-              ≈ ${usdValue.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
+              ≈ ${usdValue.toFixed(2)}
             </p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-400">Wallet Balance</p>
             <p className="text-sm text-white">
-              {walletBalance.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 8
-              })} {crypto.symbol}
+              {walletBalance.toFixed(8)} {crypto.symbol}
             </p>
-            <p className="text-sm text-gray-400">Account: {accountBalance.toLocaleString()}</p>
+            <p className="text-sm text-gray-400">Account: {accountBalance.toFixed(8)}</p>
           </div>
         </div>
       </div>
