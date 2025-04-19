@@ -326,7 +326,7 @@ export default function Dashboard() {
       name: 'Bitcoin',
       symbol: 'BTC',
       id: 'bitcoin',
-      image: '/images/btc.png',
+      image: 'https://cdn.brandfetch.io/idkbqeYUg6/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B',
       balance: cryptoBalances.bitcoin
     },
     {
