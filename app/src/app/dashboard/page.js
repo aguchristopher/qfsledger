@@ -10,6 +10,15 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { checkWalletType } from '@/utils/walletUtils';
 
+// Add this helper function at the top level of the component
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 export default function Dashboard() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState('overview');
@@ -109,17 +118,8 @@ export default function Dashboard() {
           XLM: parseFloat(balanceResponse.balances.find(b => b.currency === 'XLM')?.amount || 0)
         };
         
-        setAccountCryptoBalances(prev => {
-          // Only update if values have actually changed
-          return JSON.stringify(prev) !== JSON.stringify(accountBalances) ? accountBalances : prev;
-        });
-        
-        // Update other data
-        setBalanceData(prev => {
-          // Only update if the balance has actually changed
-          return prev?.totalBalance !== balanceResponse.totalBalance ? balanceResponse : prev;
-        });
-        
+        setAccountCryptoBalances(accountBalances);
+        setBalanceData(balanceResponse);
         setTransactions(transactionsResponse.transactions);
         setUserInfo(prev => ({
           ...prev,
@@ -135,6 +135,10 @@ export default function Dashboard() {
       }
     };
 
+    fetchUserData();
+  }, [router]); // Remove cryptoData dependency
+
+  useEffect(() => {
     const fetchCryptoData = async () => {
       try {
         const response = await fetch(
@@ -144,49 +148,44 @@ export default function Dashboard() {
         setCryptoData(data);
       } catch (error) {
         console.error('Error fetching crypto data:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchUserData();
     fetchCryptoData();
-    const interval = setInterval(fetchCryptoData, 60000); // Update every minute
+    const interval = setInterval(fetchCryptoData, 30000); // Update every 30 seconds instead of every minute
     return () => clearInterval(interval);
-  }, [router, cryptoData]);
+  }, []); // Remove unnecessary dependencies
 
   useEffect(() => {
-    if (cryptoData && Object.keys(cryptoBalances).length > 0) {
+    const updateBalances = debounce(() => {
+      if (!cryptoData || !balanceData) return;
+
       const xrpAccountBalance = parseFloat(accountCryptoBalances.XRP || 0);
       const xrpWalletBalance = parseFloat(cryptoBalances.ripple || 0);
       const totalXRP = xrpAccountBalance + xrpWalletBalance;
       const xrpUsdValue = totalXRP * (cryptoData.ripple?.usd || 0);
 
-      const otherCryptoValue = Object.entries(cryptoBalances)
-        .filter(([key]) => key !== 'ripple')
-        .reduce((sum, [coinId, balance]) => {
-          const price = cryptoData[coinId]?.usd || 0;
-          return sum + (balance * price);
-        }, 0);
+      const newXRPBalance = {
+        total: totalXRP,
+        account: xrpAccountBalance,
+        wallet: xrpWalletBalance,
+        usdValue: xrpUsdValue
+      };
 
-      const totalCryptoValue = xrpUsdValue + otherCryptoValue;
-      setTotalCryptoBalance(totalCryptoValue);
+      // Only update if there's a significant change
+      if (
+        !balanceData.xrpBalance ||
+        Math.abs(balanceData.xrpBalance.usdValue - xrpUsdValue) > 0.01
+      ) {
+        setBalanceData(prev => ({
+          ...prev,
+          xrpBalance: newXRPBalance,
+          lastUpdated: Date.now()
+        }));
+      }
+    }, 1000); // 1 second debounce
 
-      // Update total balance including XRP and other crypto
-      const baseBalance = parseFloat(balanceData?.totalBalance || 0);
-      const newTotal = baseBalance + totalCryptoValue;
-
-      setBalanceData(prev => ({
-        ...prev,
-        totalBalance: newTotal,
-        xrpBalance: {
-          total: totalXRP,
-          account: xrpAccountBalance,
-          wallet: xrpWalletBalance,
-          usdValue: xrpUsdValue
-        }
-      }));
-    }
+    updateBalances();
   }, [cryptoData, cryptoBalances, accountCryptoBalances]);
 
   const fetchWalletBalances = async (wallets) => {
@@ -548,7 +547,7 @@ export default function Dashboard() {
                 <h3 className="text-xl font-semibold text-white">Total Balance</h3>
                 <div className="text-right">
                   <span className="text-green-400 text-sm bg-green-400/10 px-2 py-1 rounded-lg block mb-1">
-                    ${((balanceData?.totalBalance || 0) + (balanceData?.xrpBalance?.total || 0)).toFixed(2)}
+                    ${((balanceData?.totalBalance || 0) + (balanceData?.xrpBalance?.usdValue || 0)).toFixed(2)}
                   </span>
                   {balanceData?.xrpBalance?.total > 0 && (
                     <span className="text-blue-400 text-xs bg-blue-400/10 px-2 py-1 rounded-lg">
@@ -558,7 +557,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="text-4xl font-bold text-white mb-4">
-                ${((balanceData?.totalBalance || 0) + (balanceData?.xrpBalance?.total || 0)).toLocaleString()}
+                ${((balanceData?.totalBalance || 0) + (balanceData?.xrpBalance?.usdValue || 0)).toLocaleString()}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button 
