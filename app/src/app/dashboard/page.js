@@ -112,10 +112,10 @@ export default function Dashboard() {
         
         // Update account crypto balances from balance response
         const accountBalances = {
-          BTC: parseFloat(balanceResponse.balances.find(b => b.currency === 'BTC')?.amount || 0),
-          ETH: parseFloat(balanceResponse.balances.find(b => b.currency === 'ETH')?.amount || 0),
-          XRP: parseFloat(balanceResponse.balances.find(b => b.currency === 'XRP')?.amount || 0),
-          XLM: parseFloat(balanceResponse.balances.find(b => b.currency === 'XLM')?.amount || 0)
+          BTC: parseFloat(balanceResponse.balances?.find(b => b.currency === 'BTC')?.amount || 0),
+          ETH: parseFloat(balanceResponse.balances?.find(b => b.currency === 'ETH')?.amount || 0),
+          XRP: parseFloat(balanceResponse.balances?.find(b => b.currency === 'XRP')?.amount || 0),
+          XLM: parseFloat(balanceResponse.balances?.find(b => b.currency === 'XLM')?.amount || 0)
         };
         
         setAccountCryptoBalances(accountBalances);
@@ -130,13 +130,18 @@ export default function Dashboard() {
           country: userResponse.country,
           isVerified: userResponse.isVerified
         }));
+
+        // After getting user data, fetch wallet balances
+        if (walletState.wallets.length > 0) {
+          await fetchWalletBalances(walletState.wallets);
+        }
       } catch (error) {
-        toast.error('Failed to fetch user data');
+        // toast.error('Failed to fetch user data');
       }
     };
 
     fetchUserData();
-  }, [router]); // Remove cryptoData dependency
+  }, [router, walletState.wallets]); // Add walletState.wallets as dependency
 
   useEffect(() => {
     const fetchCryptoData = async () => {
@@ -200,18 +205,12 @@ export default function Dashboard() {
     };
     
     try {
-      console.log('=== Processing Wallets ===');
-      console.log(`Total wallets to process: ${wallets.length}`);
-
       for (const wallet of wallets) {
         if (wallet.walletAddress) {
-          const type = wallet.type;
-          console.log(`\nWallet Found:`);
-          console.log(`Address: ${wallet.walletAddress}`);
-          console.log(`Type: ${type}`);
-          
+          const type = wallet.type || walletState.walletTypes[wallet.walletAddress]?.type;
+          if (!type) continue;
+
           const balance = await api.getWalletBalance(wallet.walletAddress, type);
-          console.log(`Balance: ${balance} ${type}`);
           
           balances[wallet.walletAddress] = {
             balance,
@@ -219,34 +218,40 @@ export default function Dashboard() {
             lastUpdated: new Date().toISOString()
           };
           
-          switch(type.toLowerCase()) {
-            case 'bitcoin':
-              aggregatedBalances.bitcoin += balance;
-              break;
-            case 'ethereum':
-              aggregatedBalances.ethereum += balance;
-              break;
-            case 'ripple':
-              aggregatedBalances.ripple += balance;
-              break;
-            case 'stellar':
-              aggregatedBalances.stellar += balance;
-              break;
+          // Map wallet types to aggregated balance keys
+          const typeToKey = {
+            'bitcoin': 'bitcoin',
+            'ethereum': 'ethereum',
+            'ripple': 'ripple',
+            'stellar': 'stellar'
+          };
+          
+          const key = typeToKey[type.toLowerCase()];
+          if (key) {
+            aggregatedBalances[key] += balance;
           }
-        } else {
-          console.log(`\nSkipped wallet: ${wallet.walletAddress || 'No address'}`);
-          console.log('Reason: Invalid address or unknown type');
         }
       }
 
-      console.log('\n=== Wallet Processing Complete ===');
-      console.log('Aggregated Balances:', aggregatedBalances);
-
       setWalletBalances(balances);
-      setCryptoBalances(aggregatedBalances);
-      
-      console.log('Wallet balances:', balances);
-      console.log('Aggregated balances:', aggregatedBalances);
+      setCryptoBalances(prev => ({
+        ...prev,
+        ...aggregatedBalances
+      }));
+
+      // Calculate combined balance
+      if (cryptoData) {
+        const totalValue = Object.entries(aggregatedBalances).reduce((sum, [coin, balance]) => {
+          const price = cryptoData[coin]?.usd || 0;
+          return sum + (balance * price);
+        }, 0);
+
+        // Update total balance including both wallet and account balances
+        setBalanceData(prev => ({
+          ...prev,
+          totalBalance: (prev?.totalBalance || 0) + totalValue
+        }));
+      }
       
     } catch (error) {
       console.error('Error fetching wallet balances:', error);
@@ -370,9 +375,9 @@ export default function Dashboard() {
   ];
 
   const renderCryptoBalance = (crypto) => {
-    const accountBalance = parseFloat(accountCryptoBalances[crypto.symbol] || 0).toFixed(8);
-    const walletBalance = parseFloat(cryptoBalances[crypto.id] || 0).toFixed(8);
-    const totalBalance = (parseFloat(accountBalance) + parseFloat(walletBalance)).toFixed(8);
+    const accountBalance = parseFloat(accountCryptoBalances[crypto.symbol] || 0);
+    const walletBalance = parseFloat(cryptoBalances[crypto.id] || 0);
+    const totalBalance = (accountBalance + walletBalance).toFixed(8);
     const price = parseFloat(cryptoData[crypto.id]?.usd || 0);
     const usdValue = (parseFloat(totalBalance) * price).toFixed(2);
     const priceChangePercent = cryptoData[crypto.id]?.usd_24h_change?.toFixed(2) || 0;
@@ -399,12 +404,12 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
-        {/* <div className="pt-2 border-t border-gray-700">
+        <div className="pt-2 border-t border-gray-700">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-400">Wallet: {walletBalance}</p>
-            <p className="text-sm text-gray-400">Account: {accountBalance}</p>
+            <p className="text-sm text-gray-400">Wallet: {walletBalance.toFixed(8)}</p>
+            <p className="text-sm text-gray-400">Account: {accountBalance.toFixed(8)}</p>
           </div>
-        </div> */}
+        </div>
       </div>
     );
   };
