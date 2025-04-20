@@ -72,7 +72,10 @@ export default function Navbar({ selectedTab, setSelectedTab, isMenuOpen, setIsM
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg py-1 border border-white/10">
                   <button
-                    onClick={() => router.push('/profile')}
+                    onClick={() => {
+                      router.push('/profile');
+                      setShowProfileMenu(false);
+                    }}
                     className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 flex items-center"
                   >
                     <User size={16} className="mr-2" /> Profile
