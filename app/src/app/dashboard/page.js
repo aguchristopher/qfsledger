@@ -404,12 +404,7 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
-        <div className="pt-2 border-t border-gray-700">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-400">Wallet: {walletBalance.toFixed(8)}</p>
-            <p className="text-sm text-gray-400">Account: {accountBalance.toFixed(8)}</p>
-          </div>
-        </div>
+       
       </div>
     );
   };
