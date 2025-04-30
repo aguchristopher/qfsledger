@@ -3,19 +3,17 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   // Configure your email service here
   // Example for Gmail:
-  host: 'smtp.hostinger.com',
-  port: '465',
-  secure: true,
+  service: 'gmail',
   auth: {
-    user: 'support@qfsworldwide.info',
-    pass: 'Donkay101$$tar'
+    user: 'aguchris740@gmail.com',
+    pass: 'thswpkcauzjpwvzk'
   }
 });
 
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: 'support@qfsworldwide.info',
+      from: 'aguchris740@gmail.com',
       to,
       subject,
       html
