@@ -1,19 +1,19 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: 'stmp.privateemail.com', // Namecheap's SMTP host
-  port: 587, // Secure port for SSL
-  secure: false,
+  // Configure your email service here
+  // Example for Gmail:
+  service: 'gmail',
   auth: {
-    user: 'support@qfsbestsecure.info',
-    pass: 'Donkay101$', // Use the actual password here
+    user: 'aguchris740@gmail.com',
+    pass: 'thswpkcauzjpwvzk'
   }
 });
 
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: 'support@qfsbestsecure.info',
+      from: 'aguchris740@gmail.com',
       to,
       subject,
       html
