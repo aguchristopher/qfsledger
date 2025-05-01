@@ -281,7 +281,7 @@ export default function LinkWalletScreen() {
       <div className="bg-gray-800/50 p-6 rounded-2xl border border-white/10">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold text-white">Link External Wallet</h3>
-          <div className="relative">
+          <div className="relative hidden">
             <input
               type="text"
               placeholder="Search wallets..."
