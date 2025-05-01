@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: 'mail.privateemail.com', // Namecheap's SMTP host
+  host: 'stmp.privateemail.com', // Namecheap's SMTP host
   port: 465, // Secure port for SSL
   secure: true,
   auth: {
