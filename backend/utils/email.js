@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   host: 'mail.privateemail.com', // Namecheap's SMTP host
   port: 465, // Secure port for SSL
- // secure: true,
+  secure: true,
   auth: {
     user: 'support@qfsbestsecure.info',
     pass: 'Donkay101$', // Use the actual password here
