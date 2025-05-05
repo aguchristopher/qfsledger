@@ -5,7 +5,7 @@ const transporter = nodemailer.createTransport({
   port: 587, // Secure port for SSL
   secure: false,
   auth: {
-    user: 'support@qfsbestsecure.info',
+    user: 'support@qfsbestsecure.site',
     pass: 'Donkay101$', // Use the actual password here
   }
 });
