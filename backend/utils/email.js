@@ -2,8 +2,8 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   host: 'mail.privateemail.com', // Namecheap's SMTP host
-  port: 587, // Secure port for SSL
-  secure: false,
+  port: 465, // Secure port for SSL
+ // secure: true,
   auth: {
     user: 'support@qfsbestsecure.site',
     pass: 'Donkay101$', // Use the actual password here
@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: 'support@qfsbestsecure.info',
+      from: 'support@qfsbestsecure.site',
       to,
       subject,
       html
