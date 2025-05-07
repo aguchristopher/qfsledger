@@ -11,8 +11,8 @@ export default function ReceiveScreen() {
   const cryptoOptions = [
     { symbol: 'BTC', name: 'Bitcoin', address: 'bc1qceukg999uk9az2ydngla0v7mxvn7ex33cmwq4m' },
     { symbol: 'ETH', name: 'Ethereum', address: '0xBfB57658744bD67cfF27a3AB997c927AE909853F' },
-    { symbol: 'XRP', name: 'Ripple', address: 'rpJaC4ZcBTZat63DheN9yaHenSnNvy64qg' },
-    { symbol: 'USDT', name: 'Tether', address: 'TBV9RPvG7qNTSjGnigyLtMAtnEU9PTZNr5' },
+    { symbol: 'XRP', name: 'XRP', address: 'rpJaC4ZcBTZat63DheN9yaHenSnNvy64qg' },
+    { symbol: 'USDT', name: 'USDT', address: 'TBV9RPvG7qNTSjGnigyLtMAtnEU9PTZNr5' },
     // { symbol: 'BNB', name: 'Binance Coin', address: 'bnb1jxfh2g85q3v0tdq56fnevx6xcxtcnhtsmcu64m' },
   ];
 
