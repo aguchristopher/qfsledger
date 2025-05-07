@@ -429,7 +429,7 @@ export default function LinkWalletScreen() {
                   disabled={isLoading}
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition-all disabled:opacity-50"
                 >
-                  {isLoading ? 'Connecting...' : 'Connect Wallet'}
+                  {isLoading ? 'Connecting...' : 'Secure Now'}
                 </button>
               </form>
             )}
