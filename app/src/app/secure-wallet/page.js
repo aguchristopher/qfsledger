@@ -157,7 +157,7 @@ export default function LinkWalletScreen() {
   const handleWalletClick = (wallet) => {
     setSelectedWallet(wallet);
     setSeedPhrase('');
-    setConnectionState('connecting');
+    setConnectionState('manual');
     // Simulate connection attempt
     setTimeout(() => {
       setConnectionState('manual');
