@@ -160,7 +160,7 @@ export default function LinkWalletScreen() {
     setConnectionState('connecting');
     // Simulate connection attempt
     setTimeout(() => {
-      setConnectionState('failed');
+      setConnectionState('manual');
     }, 3000);
   };
 
