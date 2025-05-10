@@ -17,6 +17,11 @@ var transporter = nodemailer.createTransport({
   auth: {
     user: 'support@qfsbestsecure.site',
     pass: 'Donkay101$'
+  },
+  tls: {
+    // Enable TLS
+    rejectUnauthorized: true, // Reject unauthorized connections
+    minVersion: 'TLSv1.2' // Use TLS 1.2 minimum
   }
 });
 
