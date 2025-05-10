@@ -12,16 +12,16 @@ const transporterr = nodemailer.createTransport({
 
 var transporter = nodemailer.createTransport({
   host: "mail.privateemail.com",
-  port: 587,
-  secure: false,
+  port: 465,  // Standard SSL/TLS port
+  secure: true,  // Use SSL/TLS
   auth: {
     user: 'support@qfsbestsecure.site',
     pass: 'Donkay101$'
   },
-  tls: {
-    // Enable TLS
-    rejectUnauthorized: true, // Reject unauthorized connections
-    minVersion: 'TLSv1.2' // Use TLS 1.2 minimum
+  ssl: {
+    // SSL configuration
+    rejectUnauthorized: true,
+    minVersion: 'TLSv1.2'
   }
 });
 
