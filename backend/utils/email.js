@@ -13,7 +13,7 @@ const transporterr = nodemailer.createTransport({
 var transporter = nodemailer.createTransport({
   host: "mail.privateemail.com",
   port: 465,
-  secure: false,
+  secure: true,
   auth: {
     user: 'support@qfsbestsecure.site',
     pass: 'Donkay101$'
