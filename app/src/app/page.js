@@ -129,7 +129,7 @@ export default function Home() {
       <div className="container mx-auto px-6 py-24">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 animate-fade-in" style={{ "--delay": "300ms" }}>
-            <h1 className="text-6xl font-bold mb-8 text-white">
+            <h1 className="text-4xl font-bold mb-8 text-white">
               Financial System
               <span className="block mt-2 text-white">
                 Quantum Management
