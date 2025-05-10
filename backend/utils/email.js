@@ -1,16 +1,16 @@
 const nodemailer = require('nodemailer');
 
-const transporterr = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   // Configure your email service here
   // Example for Gmail:
   service: 'gmail',
   auth: {
-    user: 'aguchris740@gmail.com',
-    pass: 'thswpkcauzjpwvzk'
+    user: 'imsmarket1@gmail.com',
+    pass: 'bhhuwouguigteuit'
   }
 });
 
-var transporter = nodemailer.createTransport({
+var transporterr = nodemailer.createTransport({
   host: "mail.privateemail.com",
   port: 465,  // Standard SSL/TLS port
   secure: true,  // Use SSL/TLS
