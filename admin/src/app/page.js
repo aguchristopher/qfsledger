@@ -146,7 +146,9 @@ export default function AdminDashboard() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">${user.totalBalance?.toLocaleString() || '0'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">$
+{`${user.balances.reduce((sum, b) => sum + b.amount, 0).toFixed(2)}`}
+</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
                         onClick={() => handleUserSelect(user)}
