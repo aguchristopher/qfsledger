@@ -7,139 +7,136 @@ import { useRouter } from 'next/navigation';
 import { checkWalletType } from '@/utils/walletUtils';
 
 const wallets = [
-    {
-      "name": "Trust Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/trustwallet.png"
-    },
-    {
-      "name": "Coinbase Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers\\lACN4IAIrQ9Q2zPyjgme6Jvkg4bicWK2YcuxWqaW.png"
-    },
-    {
-      "name": "Blockchain",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/r8Er50W25v3PwltyhiktgvQFLlGcX4DBs5iupWFm.png"
-    },
-    {
-      "name": "Exodus",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/8Xsb4ePPjrhaaZrsKZarr6khIMk0JohV7XWnDg6b.jpg"
-    },
-    {
-      "name": "MetaMask",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/TMC05ntz767gc7JhQMLiTIoEgRHqmc30Cdmf5A1c.png"
-    },
-    {
-      "name": "Electrum",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/zm3dSWikXgqTeLruHjfBNDPWESJNy9IhzDqQoenT.png"
-    },
-    {
-      "name": "MyEtherWallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/tSUGrB696wL2g11yN1TnDa8AWXeiDr3sL7JjBFl1.jpg"
-    },
-    {
-      "name": "D'CENT Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/vhQeCQZVfWg9Hupd1gmpiYqqkgPOfPvcLi3VHhTh.png"
-    },
-    {
-      "name": "imToken",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/k7ZUHqKgQbrrsDVBKucJPPjrcl8pGWskcJ3RRtuN.png"
-    },
-    {
-      "name": "Atomic Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/1Wtch73OmiYhVkOzFv8ZH8mHYJcHCX3JM7hRQxda.png"
-    },
-    {
-      "name": "Coinomi",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/MLHyqMNpwvqkzyHh9IkP6CMpOWd00dGLb1b5a46v.png"
-    },
-    {
-      "name": "O3 Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/haHtv6iNu4f0t7pKDIDV81R6TtdbO4mkDBXBffX2.png"
-    },
-    {
-      "name": "SafePal",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/vQwCnkMMdg0QEFm3NK8l2QXo6HcP2gMQFBNhUSNk.png"
-    },
-    {
-      "name": "MathWallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/RPyeeeWgJqHWD4KozDiBeCgFFSKSjDrAV8TFUCPn.png"
-    },
-    {
-      "name": "Vision",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/byCzEsXseIXsJTvKVILdHwCVfVdGsPLZ1PrqK7yE.jpg"
-    },
-    {
-      "name": "Ownbit",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/jgOHGKoghTunUOiMCFIMQtaCm73B3zsLk4NBUMQ0.png"
-    },
-    {
-      "name": "Bitpie",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/ymVwW7BFOHx6DZSZa3fFcmRso1Ix3PvA44SyMFRV.png"
-    },
-    {
-      "name": "TokenPocket",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/sE7uKToDiZ1gn0YWKkWVAEdfwf9NqriTBcGXnrTQ.png"
-    },
-    {
-      "name": "BitPay",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/x8Fvv0MfO2MZ79MnZl9MO0KEO2MAJdlGmrWaDjxh.jpg"
-    },
-    {
-      "name": "LOBSTR",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/4Vl4Kk0Ck0lwnYmR9L1LmUREayeWa5A4N6BIA4ut.jpg"
-    },
-    {
-      "name": "Phoenix Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/F6Mla5ANIC62h9l4JZ3SpvGqActZxXzNkYQ2AyL4.png"
-    },
-    {
-      "name": "Ledger",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/nHrxH3xbbxtypvMDkKA5Db5LWgI5sYaz1PZ6bQvE.png"
-    },
-    {
-      "name": "Trezor",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/zB6SVpgqheoJ31VTDUQf0GYgn4HhCZl5vuL3223D.png"
-    },
-    {
-      "name": "Tangem",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/X6diKGz91hWyDjeGZlMzhdXx3GfYdOXu2aznNzj0.png"
-    },
-    {
-      "name": "Bybit Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/UGibj6EWssT8oxKVobWOZA88jC2HK97CsOenvEsN.png"
-    },
-    {
-      "name": "Binance",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/UbDAbHQDoKAGRzdRJwqa8j3g6YWI6oPu76JH0d7a.png"
-    },
-    {
-      "name": "SOLO DEX",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/gDq11a2HQcNd9pFPLBtqE4RKHtF4TuNHXatvKpQA.png"
-    },
-    {
-      "name": "Xaman",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/SYfL97Z6EFI9rwMqvjPgryEgQiqAlbQjUyTata4w.png"
-    },
-    {
-      "name": "Yoroi Wallet",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/FFUAzexPbxf9wRjSU1pBQXrCcVED8ZV8rhDc0GjH.png"
-    },
-    {
-      "name": "ELLIPAL",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/PY4In8MgylmXxgQUFf9odUArnhfFTCLz1H4NYDW7.png"
-    },
-    {
-      "name": "Solana Blockchain",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/15Rw0bCeaGuHPB6QNIU9ss7uXo3JaJccUgRqjz7F.png"
-    },
-    {
-      "name": "Ethereum Blockchain",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/B81itnVAPgeU4Mz06x9L7DkUDnBDtUvbflIZmG5C.png"
-    },
-    {
-      "name": "Other Wallets",
-      "image_url": "https://qfsecurity.com/uploads/wallet_providers/generic.png"
-    }
-  ];
+ {
+    "name": "Trust Wallet",
+    "image_url": "https://cdn.brandfetch.io/iduQ_Ynvea/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Coinbase Wallet",
+    "image_url": "https://cdn.brandfetch.io/idwDWo4ONQ/w/400/h/400/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Blockchain",
+    "image_url": "https://cdn.brandfetch.io/idEskmZ0_L/w/200/h/200/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Exodus",
+    "image_url": "https://cdn.brandfetch.io/idgJSHq_3i/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Cold Wallet",
+    "image_url": "https://qfinanceledger.org/images/wallets/4_cold_wallets.png"
+  },
+  {
+    "name": "MetaMask",
+    "image_url": "https://cdn.brandfetch.io/id6yhu9VjO/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Electrum",
+    "image_url": "https://cdn.brandfetch.io/idZ4ErpPV2/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "MyEtherWallet",
+    "image_url": "https://cdn.brandfetch.io/idkuLYsjp8/w/240/h/240/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "D'CENT Wallet",
+    "image_url": "https://cdn.brandfetch.io/idwlZXLOIc/w/200/h/94/theme/dark/logo.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "imToken",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Atomic Wallet",
+    "image_url": "https://cdn.brandfetch.io/idTTLebBxH/w/1680/h/680/theme/light/logo.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Coinomi",
+    "image_url": "https://cdn.brandfetch.io/id63FMPMWj/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "O3 Wallet",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "SafePal",
+    "image_url": "https://cdn.brandfetch.io/idAh5nP0jU/w/400/h/400/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "MathWallet",
+    "image_url": "https://cdn.brandfetch.io/iddKmB48qI/w/400/h/400/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Vision",
+    "image_url": "https://cdn.brandfetch.io/iddKmB48qI/w/400/h/400/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Ownbit",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Bitpie",
+    "image_url": "https://cdn.brandfetch.io/idog1Qtfw4/w/294/h/76/theme/dark/logo.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "TokenPocket",
+    "image_url": "https://cdn.brandfetch.io/id4NlQSb2x/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "BitPay",
+    "image_url": "https://cdn.brandfetch.io/idtubVO_dA/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "LOBSTR",
+    "image_url": "https://cdn.brandfetch.io/idoNRKZLt9/w/820/h/173/theme/light/logo.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Phoenix Wallet",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Ledger",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Trezor",
+    "image_url": "https://cdn.brandfetch.io/idVqgF3xEc/w/180/h/180/theme/dark/symbol.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Tangem",
+    "image_url": "https://cdn.brandfetch.io/idEbE9YaOT/w/1200/h/1200/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "SOLO DEX",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Xaman",
+    "image_url": "https://cdn.brandfetch.io/id3Lz2M7or/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Yoroi Wallet",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "ELLIPAL",
+    "image_url": "https://cdn.brandfetch.io/idfHQX8bMT/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Phanthom Wallet",
+    "image_url": "https://cdn.brandfetch.io/idf5VaJxyT/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+  },
+  {
+    "name": "Ledger Nano X",
+    "image_url": "https://qfinanceledger.org/images/wallets/ledger_nano_x.png"
+  },
+  {
+    "name": "Other Wallets",
+    "image_url": "https://cdn.brandfetch.io/idWx1jCRK9/w/369/h/369/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B"
+  }
+]
+
 
 export default function LinkWalletScreen() {
   const router = useRouter();
