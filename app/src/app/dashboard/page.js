@@ -48,7 +48,8 @@ export default function Dashboard() {
     ripple: 0,
     stellar: 0,
     ethereum: 0,
-    'shiba-inu': 0
+    'shiba-inu': 0,
+    'hedera-hashgraph': 0
   });
   const [walletBalances, setWalletBalances] = useState({});
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
@@ -57,7 +58,8 @@ export default function Dashboard() {
     BTC: 0,
     ETH: 0,
     XRP: 0,
-    XLM: 0
+    XLM: 0,
+    HBAR: 0
   });
 
   const buyOptions = [
@@ -148,7 +150,7 @@ export default function Dashboard() {
     const fetchCryptoData = async () => {
       try {
         const response = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ripple,stellar,ethereum,shiba-inu&vs_currencies=usd&include_24h_change=true&include_last_updated_at=true&include_high_24h=true'
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ripple,stellar,ethereum,shiba-inu,hedera-hashgraph&vs_currencies=usd&include_24h_change=true&include_last_updated_at=true&include_high_24h=true'
         );
         const data = await response.json();
         setCryptoData(data);
@@ -365,6 +367,13 @@ export default function Dashboard() {
       id: 'ethereum',
       image: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg',
       balance: cryptoBalances.ethereum
+    },
+    {
+      name: 'Hedera',
+      symbol: 'HBAR',
+      id: 'hedera-hashgraph',
+      image: 'https://cryptologos.cc/logos/hedera-hbar-logo.svg',
+      balance: cryptoBalances['hedera-hashgraph']
     },
     {
       name: 'Shiba Inu',
