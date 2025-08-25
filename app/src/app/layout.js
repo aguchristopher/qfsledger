@@ -1,15 +1,16 @@
 import { Inter, Lato, Poppins } from "next/font/google";
 import "./globals.css";
-import ClientGoogleTranslate from '../components/ClientGoogleTranslate';
+import ClientGoogleTranslate from "../components/ClientGoogleTranslate";
 
-const inter = Poppins({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  weight: '400'
+  weight: "400",
+  display: "swap",
 });
 
 export const metadata = {
-  title: "QFS Ledger - Advanced Crypto Portfolio Tracking",
+  title: "Quantum Security - Advanced Crypto Portfolio Tracking",
   description: "Track your crypto assets with precision",
   keywords: ["crypto", "portfolio", "tracking", "cryptocurrency", "ledger"],
   viewport: {
