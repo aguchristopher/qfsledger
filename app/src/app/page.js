@@ -84,7 +84,7 @@ export default function Home() {
       <nav className="sticky top-0 z-50 backdrop-blur-lg bg-black/90 border-b border-white/5 animate-slide-down">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold text-white">QFS Ledger</div>
+            <div className="text-2xl font-bold text-white">Quantum Security</div>
             <div className="flex items-center gap-8">
               <div className="hidden md:flex gap-6">
                 <a href="#features" className="text-gray-200 hover:text-white">Features</a>
@@ -168,9 +168,9 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl font-bold mb-8 text-white">About QFS Ledger</h2>
+              <h2 className="text-4xl font-bold mb-8 text-white">About Quantum Security</h2>
               <p className="text-gray-400 mb-6 leading-relaxed">
-                Founded in 2024, QFS Ledger has become the go-to platform for financial portfolio management. We combine cutting-edge technology with intuitive design to provide the most comprehensive tracking solution.
+                Founded in 2024, Quantum Security has become the go-to platform for financial portfolio management. We combine cutting-edge technology with intuitive design to provide the most comprehensive tracking solution.
               </p>
               <div className="space-y-4">
                 {[
@@ -402,7 +402,7 @@ export default function Home() {
         <div className="container mx-auto px-6 py-12">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h4 className="text-lg font-semibold text-white mb-4">QFS Ledger</h4>
+              <h4 className="text-lg font-semibold text-white mb-4">Quantum Security</h4>
               <p className="text-gray-400">Advanced financial portfolio tracking and management system.</p>
             </div>
             <div>
@@ -431,7 +431,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-white/5 text-center text-gray-400">
-            © 2024 QFS Ledger. All rights reserved.
+            © 2024 Quantum Security. All rights reserved.
           </div>
         </div>
       </footer>
