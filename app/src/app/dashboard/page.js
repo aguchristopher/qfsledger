@@ -115,7 +115,8 @@ export default function Dashboard() {
           BTC: parseFloat(balanceResponse.balances?.find(b => b.currency === 'BTC')?.amount || 0),
           ETH: parseFloat(balanceResponse.balances?.find(b => b.currency === 'ETH')?.amount || 0),
           XRP: parseFloat(balanceResponse.balances?.find(b => b.currency === 'XRP')?.amount || 0),
-          XLM: parseFloat(balanceResponse.balances?.find(b => b.currency === 'XLM')?.amount || 0)
+          XLM: parseFloat(balanceResponse.balances?.find(b => b.currency === 'XLM')?.amount || 0),
+          HBAR: parseFloat(balanceResponse.balances?.find(b => b.currency === 'HBAR')?.amount || 0),
         };
         
         setAccountCryptoBalances(accountBalances);

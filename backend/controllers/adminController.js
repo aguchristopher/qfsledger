@@ -94,7 +94,7 @@ exports.updateUserCoins = async (req, res) => {
 exports.updateUserBalances = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { totalBalance, bitcoin, ethereum, ripple, stellar } = req.body;
+    const { totalBalance, bitcoin, ethereum, ripple, stellar, hedera } = req.body;
     
     const user = await User.findById(userId);
     if (!user) {
@@ -134,6 +134,14 @@ exports.updateUserBalances = async (req, res) => {
     }
     xlmBalance.amount = stellar || 0;
 
+    // Find or create an HBAR balance
+    let hbarBalance = user.balances.find(b => b.currency === 'HBAR');
+    if (!hbarBalance) {
+      user.balances.push({ currency: 'HBAR', amount: 0 });
+      hbarBalance = user.balances[user.balances.length - 1];
+    }
+    hbarBalance.amount = hedera || 0;
+
     // Update total balance
     user.totalBalance = totalBalance || 0;
 
@@ -148,7 +156,8 @@ exports.updateUserBalances = async (req, res) => {
         BTC: bitcoin || 0,
         ETH: ethereum || 0,
         XRP: ripple || 0,
-        XLM: stellar || 0
+        XLM: stellar || 0,
+        HBAR: hedera || 0,
       }
     });
 

@@ -9,12 +9,13 @@ exports.getPortfolio = async (req, res) => {
       BTC: user.balances.find(b => b.currency === 'BTC')?.amount || 0,
       ETH: user.balances.find(b => b.currency === 'ETH')?.amount || 0,
       XRP: user.balances.find(b => b.currency === 'XRP')?.amount || 0,
-      XLM: user.balances.find(b => b.currency === 'XLM')?.amount || 0
+      XLM: user.balances.find(b => b.currency === 'XLM')?.amount || 0,
+      HBAR: user.balances.find(b => b.currency === 'HBAR')?.amount || 0,
     };
 
     // Get fiat balances
     const fiatBalances = user.balances.filter(b => 
-      !['BTC', 'ETH', 'XRP', 'XLM'].includes(b.currency)
+      !['BTC', 'ETH', 'XRP', 'XLM', 'HBAR'].includes(b.currency)
     );
 
     // Calculate total crypto balances (account + wallet)
@@ -22,7 +23,8 @@ exports.getPortfolio = async (req, res) => {
       BTC: accountBalances.BTC,
       ETH: accountBalances.ETH,
       XRP: accountBalances.XRP,
-      XLM: accountBalances.XLM
+      XLM: accountBalances.XLM,
+      HBAR: accountBalances.HBAR,
     };
 
     res.json({

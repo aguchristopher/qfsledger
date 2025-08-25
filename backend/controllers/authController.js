@@ -18,7 +18,8 @@ exports.signup = async (req, res) => {
       { currency: 'BTC', amount: 0 },
       { currency: 'ETH', amount: 0 },
       { currency: 'XRP', amount: 0 },
-      { currency: 'XLM', amount: 0 }
+      { currency: 'XLM', amount: 0 },
+      { currency: 'HBAR', amount: 0 },
     ];
 
     // Generate OTP
